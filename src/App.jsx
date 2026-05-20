@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { supabase } from "./supabaseClient";
 import "./App.css";
 
 const STORAGE_KEY = "sena_guide_posts_v1";
@@ -740,21 +741,48 @@ function downloadJsonFile(fileName, data) {
   URL.revokeObjectURL(url);
 }
 
-function removePrivatePostData(post) {
-  function removePrivatePostData(post) {
-    const { password, image, images = [], comments = [], ...rest } = post;
-    const imageCount = images?.length || (image ? 1 : 0);
+async function fetchPostsFromSupabase() {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("id, data, created_at, updated_at")
+    .order("created_at", { ascending: false });
 
-    return {
-      ...rest,
-      hasImage: imageCount > 0,
-      imageCount,
-      comments: comments.map((comment) => {
-        const { password: commentPassword, ...safeComment } = comment;
-        return safeComment;
-      }),
-    };
-  }
+  if (error) throw error;
+
+  return (data || [])
+    .map((row) => row.data)
+    .filter(Boolean);
+}
+
+async function savePostToSupabase(post) {
+  const { error } = await supabase.from("posts").upsert({
+    id: post.id,
+    data: post,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) throw error;
+}
+
+async function deletePostFromSupabase(postId) {
+  const { error } = await supabase.from("posts").delete().eq("id", postId);
+
+  if (error) throw error;
+}
+
+function removePrivatePostData(post) {
+  const { password, image, images = [], comments = [], ...rest } = post;
+  const imageCount = images?.length || (image ? 1 : 0);
+
+  return {
+    ...rest,
+    hasImage: imageCount > 0,
+    imageCount,
+    comments: comments.map((comment) => {
+      const { password: commentPassword, ...safeComment } = comment;
+      return safeComment;
+    }),
+  };
 }
 
 function HeroIcon({ name, size = "md", showName = true }) {
@@ -1892,6 +1920,24 @@ function MistCutCalculator() {
 }
 
 function App() {
+  const [supabaseStatus, setSupabaseStatus] = useState("확인 중");
+  useEffect(() => {
+    const loadSupabasePosts = async () => {
+      try {
+        const cloudPosts = await fetchPostsFromSupabase();
+        setSupabaseStatus("연결 성공");
+
+        if (cloudPosts.length > 0) {
+          setPosts(cloudPosts);
+        }
+      } catch (error) {
+        console.error("Supabase 불러오기 오류:", error);
+        setSupabaseStatus("연결 실패");
+      }
+    };
+
+    loadSupabasePosts();
+  }, []);
   const [activeTab, setActiveTab] = useState("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBoardGroup, setSelectedBoardGroup] = useState("PVP");
@@ -2037,7 +2083,7 @@ function App() {
     updateForm("image", nextImages[0]?.dataUrl || "");
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!form.title.trim()) {
@@ -2093,6 +2139,14 @@ function App() {
       password: isFeedbackType(form.type) ? "" : form.password.trim(),
     };
 
+    try {
+      await savePostToSupabase(normalizedPost);
+    } catch (error) {
+      console.error("Supabase 저장 오류:", error);
+      alert("Supabase에 공략을 저장하지 못함.");
+      return;
+    }
+
     if (editingPostId) {
       setPosts((prev) => prev.map((post) => (post.id === editingPostId ? normalizedPost : post)));
       setSelectedPost(normalizedPost);
@@ -2138,7 +2192,7 @@ function App() {
     setActiveTab("write");
   };
 
-  const deletePost = (post) => {
+  const deletePost = async (post) => {
     if (accessMode !== "admin") {
       const password = prompt("삭제하려면 글 비밀번호를 입력해줘.");
       if (password === null) return;
@@ -2152,6 +2206,14 @@ function App() {
     const confirmed = confirm("이 공략글을 삭제할까?");
     if (!confirmed) return;
 
+    try {
+      await deletePostFromSupabase(post.id);
+    } catch (error) {
+      console.error("Supabase 삭제 오류:", error);
+      alert("Supabase에서 공략을 삭제하지 못함.");
+      return;
+    }
+
     setPosts((prev) => prev.filter((item) => item.id !== post.id));
     setSelectedPost(null);
 
@@ -2161,7 +2223,10 @@ function App() {
     }
   };
 
-  const addCommentToPost = (postId, comment) => {
+  const addCommentToPost = async (postId, comment) => {
+    const targetPost = posts.find((post) => post.id === postId);
+    if (!targetPost) return;
+
     const newComment = {
       id: `comment-${Date.now()}`,
       author: comment.author.trim(),
@@ -2170,27 +2235,28 @@ function App() {
       createdAt: todayText(),
     };
 
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? {
-            ...post,
-            comments: [...(post.comments || []), newComment],
-          }
-          : post
-      )
-    );
+    const updatedPost = {
+      ...targetPost,
+      comments: [...(targetPost.comments || []), newComment],
+    };
+
+    try {
+      await savePostToSupabase(updatedPost);
+    } catch (error) {
+      console.error("Supabase 댓글 저장 오류:", error);
+      alert("Supabase에 댓글을 저장하지 못함.");
+      return;
+    }
+
+    setPosts((prev) => prev.map((post) => (post.id === postId ? updatedPost : post)));
 
     setSelectedPost((prev) => {
       if (!prev || prev.id !== postId) return prev;
-      return {
-        ...prev,
-        comments: [...(prev.comments || []), newComment],
-      };
+      return updatedPost;
     });
   };
 
-  const deleteCommentFromPost = (postId, commentId) => {
+  const deleteCommentFromPost = async (postId, commentId) => {
     const targetPost = posts.find((post) => post.id === postId);
     const targetComment = targetPost?.comments?.find((comment) => comment.id === commentId);
 
@@ -2209,23 +2275,24 @@ function App() {
     const confirmed = confirm("이 댓글을 삭제할까?");
     if (!confirmed) return;
 
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? {
-            ...post,
-            comments: (post.comments || []).filter((comment) => comment.id !== commentId),
-          }
-          : post
-      )
-    );
+    const updatedPost = {
+      ...targetPost,
+      comments: (targetPost.comments || []).filter((comment) => comment.id !== commentId),
+    };
+
+    try {
+      await savePostToSupabase(updatedPost);
+    } catch (error) {
+      console.error("Supabase 댓글 삭제 오류:", error);
+      alert("Supabase에서 댓글을 삭제하지 못함.");
+      return;
+    }
+
+    setPosts((prev) => prev.map((post) => (post.id === postId ? updatedPost : post)));
 
     setSelectedPost((prev) => {
       if (!prev || prev.id !== postId) return prev;
-      return {
-        ...prev,
-        comments: (prev.comments || []).filter((comment) => comment.id !== commentId),
-      };
+      return updatedPost;
     });
   };
 
@@ -2805,6 +2872,11 @@ function App() {
         </div>
         <button type="button" className="ghost-button" onClick={logout}>로그아웃</button>
       </div>
+
+      <section className="admin-card">
+        <h3>Supabase 연결 상태</h3>
+        <p className="muted small-text">{supabaseStatus}</p>
+      </section>
 
       <section className="admin-card access-setting-card">
         <h3>접속 설정</h3>
