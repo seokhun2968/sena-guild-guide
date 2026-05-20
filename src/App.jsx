@@ -786,6 +786,18 @@ async function savePostToSupabase(post) {
   if (error) throw error;
 }
 
+async function savePostsToSupabase(posts) {
+  const rows = posts.map((post) => ({
+    id: post.id,
+    data: post,
+    updated_at: new Date().toISOString(),
+  }));
+
+  const { error } = await supabase.from("posts").upsert(rows);
+
+  if (error) throw error;
+}
+
 async function deletePostFromSupabase(postId) {
   const { error } = await supabase.from("posts").delete().eq("id", postId);
 
@@ -2446,24 +2458,45 @@ function App() {
         return;
       }
 
-      setPosts(backup.posts);
+      const importedPosts = backup.posts;
 
-      if (backup.settings) {
-        setSettings({
+      const importedSettings = backup.settings
+        ? {
           ...defaultSettings,
           ...backup.settings,
           favoriteHeroOrders: {
             ...defaultSettings.favoriteHeroOrders,
             ...(backup.settings.favoriteHeroOrders || {}),
           },
-        });
+        }
+        : settings;
+
+      try {
+        await savePostsToSupabase(importedPosts);
+
+        if (backup.settings) {
+          await saveSettingsToSupabase(importedSettings);
+        }
+      } catch (error) {
+        console.error("Supabase 백업 업로드 오류:", error);
+        alert("백업은 읽었지만 Supabase 업로드에 실패함.");
+        event.target.value = "";
+        return;
+      }
+
+      setPosts(importedPosts);
+
+      if (backup.settings) {
+        setSettings(importedSettings);
       }
 
       setSelectedPost(null);
       setEditingPostId(null);
       setForm(initialForm);
 
-      alert("백업 불러오기 완료.");
+      alert("백업 불러오기 완료. Supabase에도 업로드됨.");
+
+
     } catch (error) {
       console.error(error);
       alert("백업 파일을 읽는 중 오류가 발생함.");
