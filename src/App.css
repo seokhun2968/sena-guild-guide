@@ -1,0 +1,3961 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #070b13;
+  --panel: #101827;
+  --panel2: #0d1422;
+  --line: #26344a;
+  --text: #f8fafc;
+  --muted: #9ca9bd;
+  --gold: #f4c84e;
+  --gold2: #8a6a1f;
+  --danger: #45161d;
+  --blue: #203a61;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #172033 0, #070b13 45%, #05070d 100%);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+}
+
+.desktop-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 22px 18px;
+  border-right: 1px solid var(--line);
+  background: rgba(9, 14, 25, 0.94);
+  backdrop-filter: blur(16px);
+}
+
+.brand-box {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #f4c84e, #d69d2c);
+  color: #111827;
+  font-weight: 900;
+  font-size: 20px;
+}
+
+.brand-box strong {
+  display: block;
+  font-size: 17px;
+}
+
+.brand-box span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nav-list {
+  display: grid;
+  gap: 10px;
+}
+
+.nav-list button {
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: transparent;
+  color: #dce6f5;
+  text-align: left;
+  font-weight: 800;
+}
+
+.nav-list button:hover,
+.nav-list button.active {
+  border-color: #40516d;
+  background: #121c2e;
+  color: #ffe9a6;
+}
+
+.main-content {
+  width: min(1180px, calc(100vw - 300px));
+  margin: 0 auto;
+  padding: 34px 26px 80px;
+}
+
+.mobile-topbar {
+  display: none;
+}
+
+.mobile-menu-backdrop {
+  display: none;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-section {
+  padding: 36px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(18, 28, 45, 0.95), rgba(18, 22, 30, 0.94));
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .25);
+  text-align: center;
+}
+
+.hero-section h1 {
+  margin: 0;
+  color: #fff;
+  font-size: 36px;
+  line-height: 1.2;
+}
+
+.hero-section p:not(.eyebrow) {
+  max-width: 740px;
+  margin: 18px auto 0;
+  color: #d7e1ef;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.primary-button,
+.ghost-button {
+  border: 1px solid #3c4c66;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 900;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #f4c84e, #d79720);
+  color: #111827;
+  border-color: transparent;
+}
+
+.ghost-button {
+  background: rgba(14, 21, 34, 0.8);
+  color: #f8fafc;
+}
+
+.small-primary {
+  padding: 10px 14px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.stats-grid div {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(16, 24, 39, 0.9);
+  text-align: center;
+}
+
+.stats-grid span {
+  color: var(--gold);
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.stats-grid p {
+  margin: 8px 0 0;
+  color: #dbe5f2;
+  font-weight: 800;
+}
+
+.panel-section {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: rgba(13, 20, 34, 0.9);
+}
+
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.section-title-row h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.muted {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.small-text {
+  font-size: 12px;
+}
+
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.post-card {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 16px;
+  background: #0e1728;
+  color: var(--text);
+  text-align: left;
+  display: grid;
+  gap: 12px;
+}
+
+.post-card:hover {
+  border-color: var(--gold);
+}
+
+.post-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.post-card h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.tag,
+.count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #2b2413;
+  color: #ffe69a;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.post-preview {
+  margin: 0;
+  color: #cfd9e7;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.mini-matchup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mini-matchup.single {
+  grid-template-columns: 1fr;
+}
+
+.mini-matchup>div {
+  padding: 10px;
+  border-radius: 16px;
+  background: #0a111e;
+  border: 1px solid #1f2c42;
+}
+
+.mini-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ffe69a;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.hero-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.hero-icon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 52px;
+}
+
+.hero-icon img,
+.hero-fallback {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 1px solid #34435c;
+  background: #0a0f1b;
+}
+
+.hero-fallback {
+  display: grid;
+  place-items: center;
+  color: #ffe69a;
+  font-weight: 900;
+}
+
+.hero-icon span {
+  max-width: 64px;
+  color: #e9f1ff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.hero-icon-xs {
+  min-width: 42px;
+}
+
+.hero-icon-xs img,
+.hero-icon-xs .hero-fallback {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+.hero-icon-xs span {
+  font-size: 10px;
+  max-width: 48px;
+}
+
+.hero-icon-lg img,
+.hero-icon-lg .hero-fallback {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+}
+
+.hero-icon-gallery img,
+.hero-icon-gallery .hero-fallback {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+}
+
+.pet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #152238;
+  color: #e8f1ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.pet-chip img,
+.pet-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #2b2413;
+  display: grid;
+  place-items: center;
+  color: #ffe69a;
+}
+
+.filter-bar {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid #32425c;
+  border-radius: 14px;
+  padding: 12px;
+  background: #08101d;
+  color: #fff;
+  outline: none;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--gold);
+}
+
+.write-form {
+  display: grid;
+  gap: 16px;
+}
+
+.form-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #0e1728;
+}
+
+.form-card h3,
+.selector-box h4 {
+  margin: 0 0 12px;
+  color: #ffe69a;
+}
+
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.type-card {
+  padding: 16px;
+  border: 1px solid #34435c;
+  border-radius: 18px;
+  background: #09111f;
+  color: #fff;
+  text-align: left;
+}
+
+.type-card.selected {
+  border-color: var(--gold);
+  background: #211b0d;
+}
+
+.type-card strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.type-card span {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.type-card p {
+  margin: 8px 0 0;
+  color: #cbd6e6;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.form-grid-two,
+.selector-grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.field-label {
+  display: grid;
+  gap: 8px;
+  color: #e9f1ff;
+  font-weight: 900;
+}
+
+.wide-field {
+  grid-column: 1 / -1;
+}
+
+.pet-grid {
+  margin-top: 14px;
+}
+
+.selector-box {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #24324a;
+  border-radius: 18px;
+  background: #0a111e;
+}
+
+.selector-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.selected-mini-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.hero-select-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+  max-height: 290px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 14px;
+  background: #070d18;
+}
+
+.hero-select-button {
+  min-width: 0;
+  padding: 6px 4px;
+  border: 1px solid #26344a;
+  border-radius: 12px;
+  background: #0d1626;
+  color: #fff;
+}
+
+.hero-select-button.selected {
+  border-color: var(--gold);
+  background: #221b0d;
+}
+
+.image-preview-box {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.image-preview-box img,
+.detail-image {
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid #34435c;
+  background: #05070d;
+}
+
+.submit-button {
+  width: 100%;
+  min-height: 52px;
+  font-size: 17px;
+}
+
+.hero-search-input {
+  margin-bottom: 16px;
+}
+
+.hero-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 14px;
+}
+
+.hero-gallery-grid .hero-icon {
+  padding: 12px 8px;
+  border: 1px solid #26344a;
+  border-radius: 18px;
+  background: #0e1728;
+  min-width: 0;
+}
+
+.memo-list {
+  display: grid;
+  gap: 12px;
+}
+
+.memo-list article {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #0e1728;
+}
+
+.memo-list h3 {
+  margin: 0 0 8px;
+  color: #ffe69a;
+}
+
+.memo-list p {
+  margin: 0;
+  color: #d5dfed;
+  line-height: 1.6;
+}
+
+.empty-box {
+  padding: 30px;
+  border: 1px dashed #34435c;
+  border-radius: 18px;
+  color: var(--muted);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  padding: 24px;
+  background: rgba(0, 0, 0, .78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-detail {
+  width: min(1100px, 96vw);
+  max-height: 92vh;
+  overflow: auto;
+  padding: 22px;
+  border: 1px solid #3b4d68;
+  border-radius: 26px;
+  background: #0b1220;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .5);
+}
+
+.detail-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.detail-top h2 {
+  margin: 0;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.detail-card {
+  padding: 16px;
+  border: 1px solid #26344a;
+  border-radius: 18px;
+  background: #0e1728;
+}
+
+.detail-card h3 {
+  margin: 0 0 12px;
+  color: #ffe69a;
+}
+
+.detail-card p {
+  margin: 0;
+  color: #dbe5f2;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.content-card {
+  margin-top: 14px;
+}
+
+@media (max-width: 1180px) {
+  .compact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .app-shell {
+    display: block;
+  }
+
+  .desktop-sidebar {
+    display: none;
+  }
+
+  .mobile-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(8, 13, 24, .96);
+    backdrop-filter: blur(14px);
+  }
+
+  .mobile-topbar strong {
+    display: block;
+    font-size: 15px;
+  }
+
+  .mobile-topbar span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .menu-button,
+  .write-shortcut {
+    border: 1px solid #34435c;
+    border-radius: 12px;
+    background: #111b2d;
+    color: #fff;
+    padding: 9px 11px;
+    font-weight: 900;
+  }
+
+  .write-shortcut {
+    color: #111827;
+    background: var(--gold);
+    border-color: transparent;
+  }
+
+  .mobile-menu-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgba(0, 0, 0, .62);
+  }
+
+  .mobile-drawer {
+    width: min(290px, 86vw);
+    height: 100%;
+    padding: 18px;
+    border-right: 1px solid var(--line);
+    background: #0b1220;
+    display: grid;
+    align-content: start;
+    gap: 20px;
+  }
+
+  .main-content {
+    width: 100%;
+    padding: 14px 12px 60px;
+  }
+
+  .hero-section {
+    padding: 22px 16px;
+    border-radius: 22px;
+    text-align: left;
+  }
+
+  .hero-section h1 {
+    font-size: 25px;
+    color: #fff;
+  }
+
+  .hero-section p:not(.eyebrow) {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .primary-button,
+  .ghost-button {
+    padding: 11px 12px;
+    font-size: 13px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .stats-grid div {
+    padding: 14px 8px;
+    border-radius: 17px;
+  }
+
+  .stats-grid span {
+    font-size: 24px;
+  }
+
+  .stats-grid p {
+    font-size: 12px;
+  }
+
+  .panel-section {
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .section-title-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .section-title-row h2 {
+    font-size: 21px;
+  }
+
+  .post-grid,
+  .compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .post-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .post-card h3 {
+    font-size: 16px;
+  }
+
+  .mini-matchup {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .type-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid-two,
+  .selector-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .wide-field {
+    grid-column: auto;
+  }
+
+  .form-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+    padding: 11px;
+  }
+
+  .hero-select-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-height: 260px;
+  }
+
+  .hero-gallery-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .hero-gallery-grid .hero-icon {
+    padding: 9px 4px;
+    border-radius: 14px;
+  }
+
+  .hero-icon-gallery img,
+  .hero-icon-gallery .hero-fallback {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+  }
+
+  .hero-icon span {
+    font-size: 10px;
+  }
+
+  .modal-backdrop {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .post-detail {
+    width: 100%;
+    max-height: 94vh;
+    padding: 16px;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .detail-top {
+    flex-direction: column;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-card {
+    padding: 14px;
+  }
+
+  .hero-icon-lg img,
+  .hero-icon-lg .hero-fallback {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* =========================
+   v2: edit/delete + speed + structured skill order
+   ========================= */
+
+.detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.delete-button {
+  border: 1px solid #5b2731;
+  border-radius: 12px;
+  background: rgba(127, 29, 29, 0.18);
+  color: #ffb4b4;
+  padding: 9px 12px;
+  font-weight: 800;
+}
+
+.delete-button:hover {
+  border-color: #ff6b6b;
+  color: #fff;
+}
+
+.post-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.post-status-row span,
+.speed-button-row button {
+  border: 1px solid #29354b;
+  border-radius: 999px;
+  background: #111a2b;
+  color: #dbe7ff;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.speed-select-box {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #26334a;
+  border-radius: 18px;
+  background: rgba(8, 13, 25, 0.58);
+}
+
+.speed-select-box h4,
+.skill-builder h4 {
+  margin: 0;
+  color: #ffe37e;
+  font-size: 15px;
+}
+
+.speed-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.speed-button-row button.selected {
+  border-color: #f6c84c;
+  background: rgba(246, 200, 76, 0.18);
+  color: #ffe37e;
+}
+
+.skill-builder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.skill-builder {
+  padding: 14px;
+  border: 1px solid #26334a;
+  border-radius: 18px;
+  background: #0c1322;
+}
+
+.skill-builder-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.skill-builder-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tiny-button {
+  padding: 6px 8px !important;
+  font-size: 11px !important;
+  border-radius: 10px !important;
+}
+
+.tiny-button:disabled,
+.speed-button-row button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.empty-inline {
+  border: 1px dashed #2b3850;
+  border-radius: 14px;
+  padding: 12px;
+  color: #95a5bd;
+  font-size: 13px;
+  text-align: center;
+}
+
+.skill-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skill-hero-card {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 10px 8px;
+  border: 1px solid #223049;
+  border-radius: 14px;
+  background: #111a2b;
+}
+
+.skill-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 4px;
+}
+
+.skill-buttons button {
+  border: 1px solid #33415c;
+  border-radius: 9px;
+  background: #0b1020;
+  color: #e9f1ff;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 6px 4px;
+}
+
+.skill-buttons button:hover {
+  border-color: #f6c84c;
+  color: #ffe37e;
+}
+
+.skill-sequence {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #223049;
+  border-radius: 14px;
+  background: rgba(5, 8, 18, 0.58);
+}
+
+.skill-sequence>strong {
+  display: block;
+  margin-bottom: 9px;
+  color: #ffe37e;
+  font-size: 13px;
+}
+
+.empty-sequence span {
+  display: block;
+  color: #95a5bd;
+  font-size: 13px;
+}
+
+.skill-step-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-step-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 58px;
+  padding: 8px 7px;
+  border: 1px solid #354461;
+  border-radius: 14px;
+  background: #101828;
+}
+
+.skill-step-card .hero-icon span {
+  font-size: 10px;
+}
+
+.skill-badge {
+  position: absolute;
+  right: -4px;
+  top: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f6c84c;
+  color: #0b1020;
+  font-size: 11px;
+  font-weight: 1000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.skill-step-card em {
+  color: #cfe0ff;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.skill-detail-card {
+  grid-column: span 2;
+}
+
+.legacy-skill-text {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #111a2b;
+  color: #dbe7ff;
+  line-height: 1.5;
+}
+
+/* mobile */
+@media (max-width: 820px) {
+  .detail-actions {
+    width: 100%;
+    justify-content: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .detail-actions button {
+    width: 100%;
+    padding: 9px 6px;
+    font-size: 12px;
+  }
+
+  .skill-builder-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-builder-head {
+    flex-direction: column;
+  }
+
+  .skill-builder-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .skill-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-hero-card {
+    grid-template-columns: 64px 1fr;
+    align-items: center;
+    justify-items: start;
+  }
+
+  .skill-buttons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .skill-buttons button {
+    min-height: 34px;
+    font-size: 12px;
+  }
+
+  .skill-step-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .skill-step-card {
+    min-width: 0;
+  }
+
+  .skill-detail-card {
+    grid-column: span 1;
+  }
+}
+
+/* =========================
+   Skill board style v3
+   ========================= */
+.skill-detail-card {
+  grid-column: 1 / -1;
+}
+
+.skill-board {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #263653;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(10, 16, 28, 0.98), rgba(6, 10, 18, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(255, 217, 101, 0.03);
+}
+
+.skill-board+.skill-board {
+  margin-top: 14px;
+}
+
+.skill-board-title {
+  margin-bottom: 12px;
+  text-align: center;
+  color: #ffe47a;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.skill-board-track {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.skill-board-unit {
+  min-width: 0;
+  border: 1px solid #273858;
+  border-radius: 16px;
+  background: #111a2b;
+  padding: 10px 8px;
+}
+
+.skill-board-hero-wrap {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.skill-marker-stack {
+  display: grid;
+  gap: 6px;
+}
+
+.skill-marker {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 4px 7px;
+  border: 1px solid rgba(255, 217, 101, 0.38);
+  border-radius: 9px;
+  background: rgba(255, 217, 101, 0.10);
+  color: #ffe47a;
+  font-weight: 900;
+}
+
+.skill-marker b {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #ffd84c;
+  color: #111827;
+  font-size: 12px;
+}
+
+.skill-marker em {
+  color: #f8fafc;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.skill-marker.empty-marker {
+  display: flex;
+  justify-content: center;
+  color: #77849b;
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.skill-board-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #263653;
+}
+
+.skill-board-summary span {
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: #17233a;
+  color: #dbeafe;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.empty-skill-board {
+  display: grid;
+  place-items: center;
+  min-height: 88px;
+  color: #94a3b8;
+}
+
+@media (max-width: 760px) {
+  .skill-board {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .skill-board-track {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .skill-board-unit {
+    padding: 9px;
+  }
+
+  .skill-board-hero-wrap {
+    grid-template-columns: 58px 1fr;
+  }
+
+  .skill-marker {
+    min-height: 26px;
+    grid-template-columns: 20px 1fr;
+    padding: 4px 6px;
+  }
+
+  .skill-marker b {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .skill-board-summary span {
+    font-size: 11px;
+    padding: 5px 7px;
+  }
+}
+
+/* v4: 스킬 순서 보드 - 위칸은 2스, 아래칸은 1스 */
+.skill-board-hero-wrap {
+  display: grid !important;
+  grid-template-columns: 68px 1fr !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+.skill-slot-column {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(34px, auto));
+  gap: 6px;
+  min-width: 0;
+}
+
+.skill-slot {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 6px;
+  align-items: center;
+  min-height: 34px;
+  padding: 5px 7px;
+  border: 1px solid rgba(255, 217, 101, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 217, 101, 0.06);
+}
+
+.skill-slot.filled {
+  border-color: rgba(255, 217, 101, 0.62);
+  background: rgba(255, 217, 101, 0.13);
+}
+
+.skill-slot.empty {
+  opacity: 0.45;
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.skill-slot-label {
+  color: #9fb0c8;
+  font-size: 10px;
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.skill-slot-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.skill-slot-numbers b {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #ffd84c;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.skill-slot-numbers em {
+  color: #607087;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+@media (max-width: 720px) {
+  .skill-board-track {
+    grid-template-columns: 1fr !important;
+  }
+
+  .skill-board-hero-wrap {
+    grid-template-columns: 58px 1fr !important;
+  }
+
+  .skill-slot {
+    grid-template-columns: 32px 1fr;
+    min-height: 32px;
+    padding: 4px 6px;
+  }
+
+  .skill-slot-numbers b {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+}
+
+/* =========================
+   v5: 스킬 순서 인라인 표시
+   - 위칸: 2스, 아래칸: 1스
+   - 화면에는 1스/2스 글자 표시하지 않음
+   - 추천 공격덱/상대 방어덱 카드 안에 바로 표시
+   ========================= */
+.deck-skill-card {
+  min-width: 0;
+}
+
+.deck-skill-card>h3 {
+  margin-bottom: 14px;
+}
+
+.deck-skill-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+
+.deck-skill-unit {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 58px minmax(54px, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px 8px;
+  border: 1px solid #273858;
+  border-radius: 16px;
+  background: rgba(9, 15, 28, 0.72);
+}
+
+.plain-skill-pair {
+  display: grid;
+  grid-template-rows: repeat(2, 30px);
+  gap: 6px;
+  min-width: 0;
+}
+
+.plain-skill-slot {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid rgba(255, 216, 76, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 216, 76, 0.055);
+}
+
+button.plain-skill-slot {
+  cursor: pointer;
+}
+
+button.plain-skill-slot:hover {
+  border-color: #ffd84c;
+  background: rgba(255, 216, 76, 0.16);
+}
+
+.plain-skill-slot.filled {
+  border-color: rgba(255, 216, 76, 0.72);
+  background: rgba(255, 216, 76, 0.14);
+}
+
+.plain-skill-slot.empty {
+  border-style: dashed;
+  opacity: 0.58;
+}
+
+.plain-skill-slot b {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #ffd84c;
+  color: #101827;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.plain-skill-slot span {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.32);
+}
+
+.compact-skill-builder {
+  background: #0c1322;
+}
+
+.skill-input-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skill-input-unit {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 56px minmax(56px, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px 8px;
+  border: 1px solid #223049;
+  border-radius: 15px;
+  background: #111a2b;
+}
+
+.guild-war-detail {
+  align-items: start;
+}
+
+.guild-war-detail .compact-info-card {
+  min-height: 120px;
+}
+
+/* v5 이후 별도 스킬 순서 카드/요약은 사용하지 않음 */
+.skill-detail-card,
+.skill-board,
+.skill-board-summary {
+  display: none;
+}
+
+@media (max-width: 980px) {
+
+  .deck-skill-list,
+  .skill-input-list {
+    grid-template-columns: 1fr;
+  }
+
+  .deck-skill-unit,
+  .skill-input-unit {
+    grid-template-columns: 58px 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .deck-skill-card>h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .deck-skill-unit,
+  .skill-input-unit {
+    grid-template-columns: 52px 1fr;
+    padding: 9px;
+    border-radius: 14px;
+  }
+
+  .plain-skill-pair {
+    grid-template-rows: repeat(2, 28px);
+    gap: 5px;
+  }
+
+  .plain-skill-slot {
+    height: 28px;
+    border-radius: 9px;
+  }
+
+  .plain-skill-slot b {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+}
+
+/* =========================
+   Access / Admin settings
+   ========================= */
+.access-page {
+  min-height: 100vh;
+  padding: 28px;
+  display: grid;
+  place-items: center;
+  gap: 22px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 211, 94, 0.12), transparent 28%),
+    radial-gradient(circle at 80% 15%, rgba(64, 120, 255, 0.12), transparent 30%),
+    #070b13;
+}
+
+.access-hero {
+  width: min(760px, 100%);
+  text-align: center;
+  padding: 28px;
+  border: 1px solid #273349;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(18, 26, 42, 0.96), rgba(9, 13, 22, 0.96));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.access-hero .large {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 14px;
+  font-size: 26px;
+}
+
+.access-hero h1 {
+  margin: 8px 0 10px;
+  color: #fff3bf;
+  font-size: 38px;
+  letter-spacing: -0.04em;
+}
+
+.access-hero p {
+  margin: 0 auto;
+  max-width: 520px;
+  color: #cbd6e8;
+  line-height: 1.7;
+}
+
+.access-grid {
+  width: min(760px, 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.access-card {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid #29364d;
+  border-radius: 22px;
+  background: rgba(12, 18, 31, 0.96);
+}
+
+.access-card h2 {
+  margin: 0;
+  color: #ffe083;
+  font-size: 20px;
+}
+
+.access-card input {
+  width: 100%;
+}
+
+.mode-box {
+  margin-top: auto;
+  padding: 12px;
+  border: 1px solid #26334a;
+  border-radius: 16px;
+  background: rgba(8, 13, 23, 0.75);
+  display: grid;
+  gap: 8px;
+}
+
+.mode-box span {
+  color: #ffe083;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.mobile-mode-box {
+  margin: 12px 0;
+}
+
+.admin-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-card {
+  padding: 18px;
+  border: 1px solid #2a3852;
+  border-radius: 22px;
+  background: rgba(12, 18, 31, 0.96);
+}
+
+.admin-card h3 {
+  margin: 0 0 8px;
+  color: #ffe083;
+}
+
+.access-setting-card .form-grid-two {
+  margin-top: 12px;
+}
+
+.admin-manager-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.admin-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.favorite-order-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.favorite-order-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #243147;
+  border-radius: 14px;
+  background: #0b1220;
+}
+
+.favorite-order-item>span {
+  color: #f5f7fb;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.order-buttons {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.admin-hero-search {
+  margin-bottom: 10px;
+}
+
+.admin-hero-check-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid #22314b;
+  border-radius: 16px;
+  background: #08101d;
+}
+
+.admin-hero-check {
+  min-width: 0;
+  padding: 8px 6px;
+  border: 1px solid #263751;
+  border-radius: 14px;
+  background: #10192a;
+  color: #d9e4f5;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.admin-hero-check.selected {
+  border-color: #ffd85c;
+  background: rgba(255, 216, 92, 0.12);
+}
+
+.admin-hero-check>span {
+  font-size: 10px;
+  font-weight: 900;
+  color: #8fb3e8;
+}
+
+.favorite-picker-block {
+  margin-top: 12px;
+}
+
+.picker-subtitle {
+  margin: 0 0 7px;
+  color: #ffe083;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.favorite-hero-grid {
+  border-color: rgba(255, 216, 92, 0.38) !important;
+  background: rgba(255, 216, 92, 0.06) !important;
+}
+
+@media (max-width: 1180px) {
+  .admin-manager-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-hero-check-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .access-page {
+    padding: 14px;
+    align-content: center;
+  }
+
+  .access-hero {
+    padding: 22px 16px;
+    border-radius: 22px;
+  }
+
+  .access-hero h1 {
+    font-size: 28px;
+  }
+
+  .access-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .access-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .admin-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .admin-card-head {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .favorite-order-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .order-buttons {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .admin-hero-check-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: 300px;
+  }
+
+  .favorite-picker-block {
+    margin-top: 10px;
+  }
+}
+
+/* ===== Strategy detail board v1: formation + hero settings ===== */
+.guild-war-board-detail {
+  display: grid;
+  gap: 16px;
+}
+
+.matchup-board-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.9fr) minmax(260px, 1fr) minmax(280px, 1.15fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.central-strategy-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 240px;
+  background: radial-gradient(circle at top, rgba(245, 177, 76, 0.12), rgba(21, 27, 39, 0.96));
+}
+
+.central-strategy-card h3,
+.formation-board-card h3,
+.hero-settings-card h3 {
+  margin-bottom: 10px;
+}
+
+.strategy-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.strategy-chip-row span,
+.formation-tags span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(246, 196, 109, 0.14);
+  color: #ffd88a;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.formation-board-card {
+  min-height: 240px;
+}
+
+.formation-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.formation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.formation-board {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(107, 119, 141, 0.32);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(9, 13, 22, 0.72), rgba(17, 23, 36, 0.9));
+}
+
+.formation-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.front-row {
+  justify-content: space-around;
+}
+
+.formation-position {
+  min-width: 112px;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.position-label {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(118, 132, 160, 0.16);
+  color: #aeb8ca;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.formation-hero-with-skill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.formation-edit-box {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(107, 119, 141, 0.36);
+  border-radius: 18px;
+  background: rgba(10, 15, 24, 0.48);
+}
+
+.formation-edit-box .formation-board-card {
+  margin-top: 12px;
+  min-height: auto;
+}
+
+.hero-settings-form-block {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid rgba(107, 119, 141, 0.36);
+  border-radius: 18px;
+  background: rgba(10, 15, 24, 0.48);
+}
+
+.form-block-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.form-block-title-row h4 {
+  margin: 0;
+  color: #fff;
+}
+
+.hero-settings-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.hero-setting-edit-card {
+  padding: 12px;
+  border: 1px solid rgba(107, 119, 141, 0.32);
+  border-radius: 16px;
+  background: rgba(17, 23, 36, 0.72);
+}
+
+.hero-setting-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.hero-setting-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.hero-setting-input-grid .wide-field {
+  grid-column: 1 / -1;
+}
+
+.hero-settings-card {
+  overflow: hidden;
+}
+
+.settings-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.hero-settings-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.hero-settings-table th,
+.hero-settings-table td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(107, 119, 141, 0.22);
+  background: rgba(10, 15, 24, 0.55);
+  text-align: left;
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.hero-settings-table th {
+  color: #ffd88a;
+  background: rgba(246, 196, 109, 0.08);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.hero-settings-table tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (max-width: 1180px) {
+  .matchup-board-row {
+    grid-template-columns: 1fr;
+  }
+
+  .central-strategy-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .matchup-board-row {
+    gap: 12px;
+  }
+
+  .formation-board {
+    padding: 12px;
+  }
+
+  .formation-card-head {
+    flex-direction: column;
+  }
+
+  .formation-tags {
+    justify-content: flex-start;
+  }
+
+  .front-row {
+    gap: 8px;
+  }
+
+  .formation-position {
+    min-width: 0;
+    width: 48%;
+  }
+
+  .formation-hero-with-skill {
+    gap: 6px;
+  }
+
+  .hero-setting-input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-settings-table {
+    min-width: 680px;
+  }
+}
+
+
+/* =========================
+   Safe patch 01
+   - 모바일 공략 작성 스킬 입력 3칸 유지
+   - 진형 옵션은 App.jsx에서 기본/밸런스/공격/보호로 수정
+   ========================= */
+@media (max-width: 980px) {
+  .skill-input-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .skill-input-unit {
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    align-items: start !important;
+    gap: 7px !important;
+    padding: 8px 5px !important;
+  }
+
+  .skill-input-unit .hero-icon {
+    min-width: 0 !important;
+  }
+
+  .skill-input-unit .hero-icon img,
+  .skill-input-unit .hero-fallback {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 12px !important;
+  }
+
+  .skill-input-unit .hero-icon span {
+    max-width: 54px !important;
+    font-size: 10px !important;
+  }
+
+  .skill-input-unit .plain-skill-pair {
+    width: 100% !important;
+    grid-template-rows: repeat(2, 28px) !important;
+    gap: 5px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .skill-input-list {
+    gap: 6px !important;
+  }
+
+  .skill-input-unit {
+    padding: 7px 4px !important;
+  }
+
+  .skill-input-unit .hero-icon img,
+  .skill-input-unit .hero-fallback {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 11px !important;
+  }
+
+  .skill-input-unit .plain-skill-slot {
+    height: 26px !important;
+    min-height: 26px !important;
+  }
+}
+
+/* =========================
+   Mobile skill picker: hero left / slots right
+   ========================= */
+@media (max-width: 820px) {
+  .skill-input-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .skill-input-unit {
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    gap: 6px !important;
+    align-items: center !important;
+    padding: 8px 6px !important;
+  }
+
+  .skill-input-unit .hero-icon {
+    min-width: 34px !important;
+  }
+
+  .skill-input-unit .hero-icon img,
+  .skill-input-unit .hero-fallback {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+  }
+
+  .skill-input-unit .hero-icon span {
+    max-width: 36px !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+  }
+
+  .skill-input-unit .plain-skill-pair {
+    grid-template-rows: repeat(2, 24px) !important;
+    gap: 5px !important;
+  }
+
+  .skill-input-unit .plain-skill-slot {
+    height: 24px !important;
+    min-height: 24px !important;
+    border-radius: 8px !important;
+  }
+
+  .skill-input-unit .plain-skill-slot b {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 10px !important;
+  }
+
+  .skill-input-unit .plain-skill-slot span {
+    width: 6px !important;
+    height: 6px !important;
+  }
+}
+
+/* =========================
+   Safe patch 02
+   - 영웅별 장비 입력 분리
+   - 모바일 스킬 입력 hero-left/slot-right 유지
+   ========================= */
+.equipment-v2-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.equipment-v2-grid .wide-field {
+  grid-column: 1 / -1;
+}
+
+.equipment-v2-table {
+  min-width: 920px;
+}
+
+.equipment-v2-table th,
+.equipment-v2-table td {
+  white-space: nowrap;
+}
+
+.equipment-v2-table td:last-child {
+  white-space: normal;
+  min-width: 160px;
+}
+
+@media (max-width: 980px) {
+  .equipment-v2-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .equipment-v2-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .equipment-v2-grid .field-label {
+    gap: 6px !important;
+    font-size: 11px !important;
+  }
+
+  .equipment-v2-grid input,
+  .equipment-v2-grid select {
+    min-height: 38px !important;
+    padding: 8px !important;
+    font-size: 13px !important;
+    border-radius: 10px !important;
+  }
+
+  .equipment-v2-grid .wide-field {
+    grid-column: 1 / -1 !important;
+  }
+
+  .equipment-v2-table {
+    min-width: 860px;
+  }
+
+  /* 모바일 스킬 순서 입력은 계속 영웅 옆에 칸이 붙도록 유지 */
+  .skill-input-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .skill-input-unit {
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    gap: 6px !important;
+    align-items: center !important;
+    padding: 8px 6px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .equipment-v2-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .equipment-v2-grid .field-label {
+    font-size: 10px !important;
+  }
+
+  .equipment-v2-grid input,
+  .equipment-v2-grid select {
+    font-size: 12px !important;
+  }
+}
+
+
+/* ===== Patch03 scoped fix: set picker only, keep patch02 layout ===== */
+/* =========================
+   Safe patch 03
+   - 세트는 영웅 옆에서 선택
+   - 세트 선택 시 3x3 이미지+이름 배열
+   - 무기1/무기2, 방어구1/방어구2는 한 줄 유지
+   - 모바일 스킬 입력 hero-left/slot-right 유지
+   ========================= */
+.equipment-v3-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.equipment-v3-card {
+  display: grid;
+  gap: 12px;
+}
+
+.hero-setting-topline {
+  display: grid;
+  grid-template-columns: minmax(120px, auto) 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.compact-title {
+  margin-bottom: 0 !important;
+}
+
+.set-inline-control {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.set-inline-control>span {
+  color: #ffe083;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.set-picker {
+  position: relative;
+  min-width: 0;
+}
+
+.set-picker-button {
+  width: 100%;
+  min-height: 48px;
+  padding: 6px 8px;
+  border: 1px solid #32425c;
+  border-radius: 13px;
+  background: #08101d;
+  color: #fff;
+}
+
+.set-picker-button.selected {
+  border-color: rgba(255, 216, 76, 0.62);
+  background: rgba(255, 216, 76, 0.08);
+}
+
+.set-picker-empty {
+  display: inline-flex;
+  width: 100%;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  color: #9ca9bd;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.set-picker-panel {
+  position: absolute;
+  z-index: 45;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid rgba(255, 216, 76, 0.48);
+  border-radius: 16px;
+  background: #07101d;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.48);
+}
+
+.set-option {
+  min-width: 0;
+  padding: 7px 4px;
+  border: 1px solid #263751;
+  border-radius: 13px;
+  background: #10192a;
+  color: #e9f1ff;
+}
+
+.set-option.selected {
+  border-color: #ffd84c;
+  background: rgba(255, 216, 76, 0.14);
+}
+
+.set-option.reset {
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  color: #9ca9bd;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.set-icon {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.set-icon img,
+.set-fallback {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #33415c;
+  object-fit: cover;
+  background: #0a0f1b;
+}
+
+.set-fallback {
+  display: grid;
+  place-items: center;
+  color: #ffe083;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.set-icon b {
+  max-width: 54px;
+  color: #e9f1ff;
+  font-size: 10px;
+  line-height: 1.1;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.set-picker-button .set-icon {
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  justify-items: start;
+  text-align: left;
+}
+
+.set-picker-button .set-icon b {
+  max-width: none;
+  font-size: 12px;
+  text-align: left;
+}
+
+.equipment-v3-field-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.equipment-pair-row,
+.equipment-accessory-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.equipment-accessory-row {
+  grid-template-columns: 0.75fr 0.9fr 1.35fr;
+}
+
+.equipment-v3-field-stack .field-label {
+  gap: 6px;
+  font-size: 12px;
+}
+
+.equipment-v3-field-stack input,
+.equipment-v3-field-stack select {
+  min-height: 40px;
+  padding: 9px 10px;
+  border-radius: 11px;
+  font-size: 13px;
+}
+
+.memo-field {
+  width: 100%;
+}
+
+@media (max-width: 820px) {
+  .hero-setting-topline {
+    grid-template-columns: 82px 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .compact-title {
+    display: grid !important;
+    justify-items: center;
+    gap: 4px !important;
+  }
+
+  .compact-title strong {
+    font-size: 13px;
+  }
+
+  .set-inline-control {
+    grid-template-columns: 30px 1fr;
+    gap: 6px;
+  }
+
+  .set-inline-control>span {
+    font-size: 10px;
+  }
+
+  .set-picker-button {
+    min-height: 42px;
+    padding: 5px 7px;
+    border-radius: 11px;
+  }
+
+  .set-picker-button .set-icon {
+    grid-template-columns: 30px 1fr;
+    gap: 6px;
+  }
+
+  .set-picker-button .set-icon img,
+  .set-picker-button .set-fallback {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+  }
+
+  .set-picker-button .set-icon b {
+    font-size: 11px;
+  }
+
+  .set-picker-panel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px;
+    border-radius: 14px;
+  }
+
+  .set-option {
+    padding: 6px 3px;
+    border-radius: 11px;
+  }
+
+  .set-option.reset {
+    min-height: 58px;
+    font-size: 10px;
+  }
+
+  .set-icon img,
+  .set-fallback {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .set-icon b {
+    max-width: 48px;
+    font-size: 9px;
+  }
+
+  .equipment-pair-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .equipment-accessory-row {
+    grid-template-columns: 0.75fr 0.9fr 1.35fr !important;
+    gap: 8px !important;
+  }
+
+  .equipment-v3-field-stack .field-label {
+    gap: 5px !important;
+    font-size: 10px !important;
+  }
+
+  .equipment-v3-field-stack input,
+  .equipment-v3-field-stack select {
+    min-height: 36px !important;
+    padding: 7px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  /* 모바일 스킬 순서 입력은 계속 영웅 옆에 칸이 붙도록 유지 */
+  .skill-input-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .skill-input-unit {
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    gap: 6px !important;
+    align-items: center !important;
+    padding: 8px 6px !important;
+  }
+
+  .skill-input-unit .hero-icon {
+    min-width: 34px !important;
+  }
+
+  .skill-input-unit .hero-icon img,
+  .skill-input-unit .hero-fallback {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+  }
+
+  .skill-input-unit .hero-icon span {
+    max-width: 36px !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+  }
+
+  .skill-input-unit .plain-skill-pair {
+    grid-template-rows: repeat(2, 24px) !important;
+    gap: 5px !important;
+  }
+
+  .skill-input-unit .plain-skill-slot {
+    height: 24px !important;
+    min-height: 24px !important;
+    border-radius: 8px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-setting-topline {
+    grid-template-columns: 74px 1fr;
+  }
+
+  .equipment-accessory-row {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .equipment-accessory-row .reforge-field {
+    grid-column: 1 / -1;
+  }
+}
+
+/* =========================
+   Safe patch 04 CSS only
+   - 공략 상세: PC는 표 유지
+   - 모바일은 영웅 3개 탭 + 선택 영웅 세팅 카드
+   - 작성 화면 스킬순서 배치 유지
+   ========================= */
+
+/* 기본: PC에서는 모바일 세팅 카드 숨김 */
+.mobile-hero-setting-view {
+  display: none;
+}
+
+/* PC 표는 기본 표시 */
+.desktop-settings-table {
+  display: block;
+}
+
+@media (max-width: 760px) {
+
+  /* 모바일에서는 긴 표 숨김 */
+  .hero-settings-card .desktop-settings-table {
+    display: none !important;
+  }
+
+  /* 모바일 전용 영웅 세팅 탭 표시 */
+  .mobile-hero-setting-view {
+    display: grid !important;
+    gap: 12px;
+  }
+
+  .mobile-setting-hero-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .mobile-setting-hero-tabs button {
+    min-width: 0;
+    padding: 8px 5px;
+    border: 1px solid #2d3d57;
+    border-radius: 14px;
+    background: #0b1220;
+    color: #fff;
+  }
+
+  .mobile-setting-hero-tabs button.active {
+    border-color: #ffd84c;
+    background: rgba(255, 216, 76, 0.13);
+  }
+
+  .mobile-setting-hero-tabs .hero-icon {
+    min-width: 0;
+  }
+
+  .mobile-setting-card {
+    padding: 14px;
+    border: 1px solid #2d3d57;
+    border-radius: 18px;
+    background: rgba(8, 15, 28, 0.95);
+  }
+
+  .mobile-setting-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .mobile-setting-card-head strong {
+    display: block;
+    color: #fff;
+    font-size: 16px;
+  }
+
+  .mobile-setting-card-head span {
+    display: block;
+    margin-top: 3px;
+    color: #9ca9bd;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .mobile-setting-set-row {
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 10px;
+    border: 1px solid rgba(255, 216, 76, 0.18);
+    border-radius: 14px;
+    background: rgba(255, 216, 76, 0.06);
+  }
+
+  .mobile-setting-set-row>b {
+    color: #ffe083;
+    font-size: 12px;
+  }
+
+  .mobile-setting-set-row .set-icon {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .mobile-setting-set-row .set-icon img,
+  .mobile-setting-set-row .set-fallback {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .mobile-setting-set-row .set-icon b {
+    max-width: none;
+    color: #fff;
+    font-size: 12px;
+  }
+
+  .mobile-setting-empty {
+    color: #9ca9bd;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .mobile-setting-info-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .mobile-setting-info-grid>div {
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 13px;
+    background: rgba(15, 23, 42, 0.78);
+  }
+
+  .mobile-setting-info-grid b {
+    color: #ffe083;
+    font-size: 12px;
+  }
+
+  .mobile-setting-info-grid span {
+    color: #edf4ff;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.45;
+    word-break: keep-all;
+  }
+
+  /* 모바일 스킬 순서 입력 유지: 영웅 왼쪽 / 위아래 칸 오른쪽 */
+  .skill-input-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .skill-input-unit {
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    gap: 6px !important;
+    align-items: center !important;
+    padding: 8px 6px !important;
+  }
+
+  .skill-input-unit .hero-icon {
+    min-width: 34px !important;
+  }
+
+  .skill-input-unit .hero-icon img,
+  .skill-input-unit .hero-fallback {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+  }
+
+  .skill-input-unit .hero-icon span {
+    max-width: 36px !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+  }
+
+  .skill-input-unit .plain-skill-pair {
+    grid-template-rows: repeat(2, 24px) !important;
+    gap: 5px !important;
+  }
+
+  .skill-input-unit .plain-skill-slot {
+    height: 24px !important;
+    min-height: 24px !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* =========================
+   Strategy note blocks
+   ========================= */
+.strategy-note-block {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 13px;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.strategy-note-block strong {
+  color: #ffe083;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.strategy-note-block p {
+  margin: 0;
+  color: #edf4ff;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+/* =========================
+   Safe patch 05
+   - 상대 방어덱 상세 컴팩트 표시
+   - 펫 선택 이미지 버튼 배열
+   - 모바일 스킬 입력 기존 유지
+   ========================= */
+
+/* 펫 선택 이미지 배열 */
+.pet-picker-field {
+  gap: 8px;
+}
+
+.pet-picker-field>span {
+  color: #e9f1ff;
+  font-weight: 900;
+}
+
+.pet-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pet-picker-button {
+  min-width: 0;
+  min-height: 58px;
+  padding: 7px 4px;
+  border: 1px solid #2d3d57;
+  border-radius: 13px;
+  background: #0b1220;
+  color: #e9f1ff;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.pet-picker-button img {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #152238;
+  border: 1px solid #34435c;
+}
+
+.pet-picker-button.selected {
+  border-color: #ffd84c;
+  background: rgba(255, 216, 76, 0.14);
+  color: #ffe083;
+}
+
+.pet-picker-button.empty {
+  color: #9ca9bd;
+  font-size: 11px;
+}
+
+/* 상세 화면의 펫칩을 카드 내부에 작게 붙이기 */
+.deck-skill-card .pet-chip,
+.formation-board-card .pet-chip {
+  width: fit-content;
+  margin: 10px auto 0;
+  padding: 6px 10px;
+}
+
+/* 모바일: 상대 방어덱도 3칸 컴팩트 */
+@media (max-width: 760px) {
+  .deck-skill-card .deck-skill-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .deck-skill-card .deck-skill-unit {
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    gap: 6px !important;
+    align-items: center !important;
+    padding: 8px 6px !important;
+    border-radius: 14px !important;
+  }
+
+  .deck-skill-card .deck-skill-unit .hero-icon {
+    min-width: 34px !important;
+  }
+
+  .deck-skill-card .deck-skill-unit .hero-icon img,
+  .deck-skill-card .deck-skill-unit .hero-fallback {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+  }
+
+  .deck-skill-card .deck-skill-unit .hero-icon span {
+    max-width: 36px !important;
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+  }
+
+  .deck-skill-card .deck-skill-unit .plain-skill-pair {
+    grid-template-rows: repeat(2, 24px) !important;
+    gap: 5px !important;
+  }
+
+  .deck-skill-card .deck-skill-unit .plain-skill-slot {
+    height: 24px !important;
+    min-height: 24px !important;
+    border-radius: 8px !important;
+  }
+
+  .deck-skill-card .deck-skill-unit .plain-skill-slot b {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 10px !important;
+  }
+
+  .deck-skill-card .deck-skill-unit .plain-skill-slot span {
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  .pet-picker-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .pet-picker-button {
+    min-height: 52px;
+    padding: 6px 3px;
+    border-radius: 12px;
+  }
+
+  .pet-picker-button img {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* 아주 작은 화면 */
+@media (max-width: 390px) {
+  .pet-picker-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* =========================
+   Guild war write order
+   상대 정보 먼저 → 내 정보
+   ========================= */
+.guildwar-write-flow {
+  display: grid;
+  gap: 14px;
+}
+
+.guildwar-write-step {
+  min-width: 0;
+}
+
+@media (min-width: 980px) {
+  .guildwar-write-flow {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .guildwar-write-flow .guildwar-write-step:nth-child(1),
+  .guildwar-write-flow .guildwar-write-step:nth-child(3) {
+    grid-row: span 2;
+  }
+}
+
+@media (max-width: 820px) {
+  .guildwar-write-flow {
+    gap: 12px;
+  }
+}
+
+/* =========================
+   Safe patch 06
+   - 진형 후열 다중 선택
+   - 보호 진형은 후열 1명만 사용
+   ========================= */
+
+.backline-picker-field {
+  align-content: start;
+}
+
+.backline-picker-field > span {
+  color: #e9f1ff;
+  font-weight: 900;
+}
+
+.backline-picker-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.backline-picker-button {
+  min-width: 0;
+  padding: 8px 5px;
+  border: 1px solid #2d3d57;
+  border-radius: 14px;
+  background: #0b1220;
+  color: #e9f1ff;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  font-weight: 900;
+}
+
+.backline-picker-button.selected {
+  border-color: #ffd84c;
+  background: rgba(255, 216, 76, 0.14);
+  color: #ffe083;
+}
+
+.backline-picker-button > span {
+  font-size: 11px;
+}
+
+.formation-row.back-row {
+  flex-wrap: wrap;
+}
+
+.formation-empty-position {
+  min-height: 76px;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  border: 1px dashed rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  color: #9ca9bd;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+@media (max-width: 760px) {
+  .backline-picker-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .backline-picker-button {
+    padding: 7px 4px;
+    border-radius: 12px;
+  }
+
+  .backline-picker-button .hero-icon {
+    min-width: 0;
+  }
+
+  .backline-picker-button .hero-icon img,
+  .backline-picker-button .hero-fallback {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .backline-picker-button .hero-icon span {
+    max-width: 42px;
+    font-size: 9px;
+  }
+
+  .formation-row.back-row,
+  .formation-row.front-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .formation-position {
+    width: auto;
+    min-width: 92px;
+  }
+}
+
+/* =========================
+   Mist instant kill calculator
+   ========================= */
+.mist-cut-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.mist-cut-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.mist-cut-card,
+.mist-cut-result {
+  padding: 18px;
+  border: 1px solid #2a3852;
+  border-radius: 22px;
+  background: rgba(12, 18, 31, 0.96);
+  display: grid;
+  gap: 14px;
+}
+
+.mist-cut-card h3,
+.mist-cut-result h3 {
+  margin: 0;
+  color: #ffe083;
+}
+
+.mist-cut-note {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.mist-cut-note strong {
+  color: #ffe083;
+  font-size: 13px;
+}
+
+.mist-cut-note p {
+  margin: 0;
+  color: #cbd6e8;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.mist-cut-result {
+  grid-column: 1 / -1;
+  background: radial-gradient(circle at top, rgba(255, 216, 76, 0.1), rgba(12, 18, 31, 0.96));
+}
+
+.mist-result-empty {
+  padding: 18px;
+  border: 1px dashed #34435c;
+  border-radius: 16px;
+  color: #9ca9bd;
+  text-align: center;
+  font-weight: 900;
+}
+
+.mist-result-main {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.mist-result-main span {
+  color: #9ca9bd;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mist-result-main strong {
+  color: #fff;
+  font-size: 30px;
+  font-weight: 1000;
+}
+
+.mist-result-main.highlight {
+  border-color: rgba(255, 216, 76, 0.58);
+  background: rgba(255, 216, 76, 0.12);
+}
+
+.mist-result-main.highlight strong {
+  color: #ffe083;
+}
+
+.mist-result-sub {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(8, 13, 23, 0.72);
+}
+
+.mist-result-sub p {
+  margin: 0;
+  color: #cbd6e8;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 820px) {
+  .mist-cut-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mist-cut-card,
+  .mist-cut-result {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .mist-cut-result {
+    grid-column: auto;
+  }
+
+  .mist-result-main strong {
+    font-size: 24px;
+  }
+}
+
+/* =========================
+   Mist calculator heal icon picker
+   ========================= */
+.heal-icon-section {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.heal-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.heal-icon-title img {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid #34435c;
+  background: #152238;
+}
+
+.heal-icon-title strong {
+  color: #ffe083;
+  font-size: 13px;
+}
+
+.heal-icon-button-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.heal-icon-button {
+  min-width: 0;
+  padding: 9px 5px;
+  border: 1px solid #2d3d57;
+  border-radius: 12px;
+  background: #0b1220;
+  color: #e9f1ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.heal-icon-button.selected {
+  border-color: #ffd84c;
+  background: rgba(255, 216, 76, 0.14);
+  color: #ffe083;
+}
+
+.heal-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.heal-toggle-card {
+  min-width: 0;
+  padding: 10px 8px;
+  border: 1px solid #2d3d57;
+  border-radius: 14px;
+  background: #0b1220;
+  color: #e9f1ff;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.heal-toggle-card.selected {
+  border-color: #ffd84c;
+  background: rgba(255, 216, 76, 0.14);
+}
+
+.heal-toggle-card > span {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.heal-toggle-card em {
+  color: #9ca9bd;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+@media (max-width: 420px) {
+  .heal-icon-button-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .heal-toggle-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .heal-toggle-card {
+    padding: 8px 5px;
+  }
+}
+
+/* =========================
+   Board type groups
+   ========================= */
+.board-type-groups {
+  display: grid;
+  gap: 16px;
+}
+
+.board-type-group {
+  display: grid;
+  gap: 10px;
+}
+
+.board-type-group h4 {
+  margin: 0;
+  color: #ffe083;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.board-type-group .type-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 980px) {
+  .board-type-group .type-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .board-type-group .type-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   Board group tabs
+   - PVP / PVE 먼저 선택 후 콘텐츠 표시
+   ========================= */
+.board-group-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.board-group-tabs button {
+  min-height: 44px;
+  border: 1px solid #2d3d57;
+  border-radius: 14px;
+  background: #0b1220;
+  color: #e9f1ff;
+  font-weight: 900;
+}
+
+.board-group-tabs button.selected {
+  border-color: #ffd84c;
+  background: rgba(255, 216, 76, 0.14);
+  color: #ffe083;
+}
+
+.active-board-group {
+  padding-top: 4px;
+}
+
+.active-board-group h4 {
+  margin: 0 0 10px;
+  color: #ffe083;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.active-board-group .type-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 980px) {
+  .active-board-group .type-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .board-group-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .board-group-tabs button {
+    min-height: 40px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  .active-board-group .type-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   Guild war write flow v2
+   - 상대 정보 → 상대 스킬 → 아군 정보 → 아군 스킬
+   ========================= */
+.guildwar-write-flow-v2 {
+  display: grid;
+  gap: 14px;
+}
+
+.guildwar-write-flow-v2 .skill-builder {
+  margin-top: 0;
+  height: 100%;
+}
+
+@media (min-width: 980px) {
+  .guildwar-write-flow-v2 {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .enemy-heroes-step {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .enemy-pet-step {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .enemy-skill-step {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .attack-heroes-step {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .attack-pet-step {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .attack-skill-step {
+    grid-column: 2;
+    grid-row: 4;
+  }
+}
+
+@media (max-width: 820px) {
+  .guildwar-write-flow-v2 {
+    gap: 12px;
+  }
+
+  .enemy-heroes-step {
+    order: 1;
+  }
+
+  .enemy-pet-step {
+    order: 2;
+  }
+
+  .enemy-skill-step {
+    order: 3;
+  }
+
+  .attack-heroes-step {
+    order: 4;
+  }
+
+  .attack-pet-step {
+    order: 5;
+  }
+
+  .attack-skill-step {
+    order: 6;
+  }
+}
+
+/* =========================
+   Post filter group tabs
+   - 공략 보기에서도 PVP/PVE 먼저 선택
+   ========================= */
+.post-filter-stack {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.post-group-tabs {
+  margin-bottom: 0;
+}
+
+/* =========================
+   Feedback write form
+   ========================= */
+.feedback-write-card {
+  display: grid;
+  gap: 12px;
+}
+
+.feedback-write-card h3 {
+  margin: 0;
+  color: #ffe083;
+}
+
+/* =========================
+   Comments
+   ========================= */
+.comment-card {
+  margin-top: 14px;
+  display: grid;
+  gap: 14px;
+}
+
+.comment-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.comment-head h3 {
+  margin: 0;
+}
+
+.comment-head span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255, 216, 76, 0.12);
+  color: #ffe083;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.comment-form {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.comment-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.comment-form textarea {
+  min-height: 82px;
+}
+
+.comment-form .primary-button {
+  justify-self: end;
+}
+
+.comment-list {
+  display: grid;
+  gap: 10px;
+}
+
+.comment-item {
+  padding: 12px;
+  border: 1px solid #26344a;
+  border-radius: 16px;
+  background: rgba(8, 13, 23, 0.75);
+}
+
+.comment-item-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.comment-item-head strong {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+}
+
+.comment-item-head span {
+  display: block;
+  margin-top: 3px;
+  color: #9ca9bd;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.comment-item p {
+  margin: 0;
+  color: #dbe5f2;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 560px) {
+  .comment-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .comment-form .primary-button {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+/* =========================
+   Admin backup
+   ========================= */
+.backup-admin-card {
+  display: grid;
+  gap: 12px;
+}
+
+.backup-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.backup-import-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 12px 16px;
+  border: 1px solid #3c4c66;
+  border-radius: 14px;
+  background: rgba(14, 21, 34, 0.8);
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.backup-import-button input {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .backup-button-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .backup-button-row button,
+  .backup-import-button {
+    width: 100%;
+  }
+}
+
+/* =========================
+   Multiple image upload
+   ========================= */
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.image-preview-item {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #26344a;
+  border-radius: 16px;
+  background: rgba(8, 13, 23, 0.72);
+}
+
+.image-preview-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid #34435c;
+  background: #05070d;
+}
+
+.image-preview-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.image-preview-meta span {
+  min-width: 0;
+  color: #cbd6e8;
+  font-size: 12px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-image-gallery {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.detail-image-gallery .detail-image {
+  width: 100%;
+  max-height: 460px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid #34435c;
+  background: #05070d;
+}
+
+@media (max-width: 760px) {
+  .image-preview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-preview-item img {
+    height: 190px;
+  }
+
+  .detail-image-gallery .detail-image {
+    max-height: 360px;
+  }
+}
