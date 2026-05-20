@@ -1977,6 +1977,41 @@ function MistCutCalculator() {
 }
 
 function App() {
+  const [authSession, setAuthSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [supabaseStatus, setSupabaseStatus] = useState("확인 중");
+  const [activeTab, setActiveTab] = useState("home");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedBoardGroup, setSelectedBoardGroup] = useState("PVP");
+  const [selectedPostGroup, setSelectedPostGroup] = useState("PVP");
+  const [accessMode, setAccessMode] = useState(() => sessionStorage.getItem("sena_guide_access_mode") || "");
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem(SETTINGS_KEY);
+      if (!saved) return defaultSettings;
+
+      const parsed = JSON.parse(saved);
+      return {
+        ...defaultSettings,
+        ...sanitizeSettings(parsed),
+        favoriteHeroOrders: {
+          ...defaultSettings.favoriteHeroOrders,
+          ...(parsed.favoriteHeroOrders || {}),
+        },
+      };
+    } catch {
+      return defaultSettings;
+    }
+  });
+  const [posts, setPosts] = useState([]);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [viewerImage, setViewerImage] = useState(null);
+  const [postFilter, setPostFilter] = useState("all");
+  const [postSearch, setPostSearch] = useState("");
+  const [heroSearch, setHeroSearch] = useState("");
+  const [form, setForm] = useState(initialForm);
+  const [editingPostId, setEditingPostId] = useState(null);
+
   useEffect(() => {
     const initAuth = async () => {
       const { data, error } = await supabase.auth.getSession();
@@ -1992,6 +2027,9 @@ function App() {
       if (data.session) {
         setAccessMode("admin");
         sessionStorage.setItem("sena_guide_access_mode", "admin");
+      } else if (sessionStorage.getItem("sena_guide_access_mode") === "admin") {
+        setAccessMode("");
+        sessionStorage.removeItem("sena_guide_access_mode");
       }
 
       setAuthLoading(false);
@@ -2017,9 +2055,7 @@ function App() {
       subscription.unsubscribe();
     };
   }, []);
-  const [authSession, setAuthSession] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [supabaseStatus, setSupabaseStatus] = useState("확인 중");
+
   useEffect(() => {
     const loadSupabaseData = async () => {
       try {
@@ -2029,15 +2065,12 @@ function App() {
         ]);
 
         setSupabaseStatus("연결 성공");
-
-        if (cloudPosts.length > 0) {
-          setPosts(cloudPosts);
-        }
+        setPosts(cloudPosts);
 
         if (cloudSettings) {
           setSettings({
             ...defaultSettings,
-            ...cloudSettings,
+            ...sanitizeSettings(cloudSettings),
             favoriteHeroOrders: {
               ...defaultSettings.favoriteHeroOrders,
               ...(cloudSettings.favoriteHeroOrders || {}),
@@ -2052,41 +2085,13 @@ function App() {
 
     loadSupabaseData();
   }, []);
-  const [activeTab, setActiveTab] = useState("home");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedBoardGroup, setSelectedBoardGroup] = useState("PVP");
-  const [selectedPostGroup, setSelectedPostGroup] = useState("PVP");
-  const [accessMode, setAccessMode] = useState(() => sessionStorage.getItem("sena_guide_access_mode") || "");
-  const [settings, setSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem(SETTINGS_KEY);
-      return saved ? { ...defaultSettings, ...JSON.parse(saved), favoriteHeroOrders: { ...defaultSettings.favoriteHeroOrders, ...(JSON.parse(saved).favoriteHeroOrders || {}) } } : defaultSettings;
-    } catch {
-      return defaultSettings;
-    }
-  });
-  const [posts, setPosts] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : defaultPosts;
-    } catch {
-      return defaultPosts;
-    }
-  });
-  const [selectedPost, setSelectedPost] = useState(null);
-  const [viewerImage, setViewerImage] = useState(null);
-  const [postFilter, setPostFilter] = useState("all");
-  const [postSearch, setPostSearch] = useState("");
-  const [heroSearch, setHeroSearch] = useState("");
-  const [form, setForm] = useState(initialForm);
-  const [editingPostId, setEditingPostId] = useState(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
   }, [posts]);
 
   useEffect(() => {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(sanitizeSettings(settings)));
   }, [settings]);
 
   const navItems = useMemo(() => (accessMode === "admin" ? [...baseNavItems, adminNavItem] : baseNavItems), [accessMode]);
@@ -2538,7 +2543,7 @@ function App() {
       }
 
       const confirmed = confirm(
-        "백업을 불러오면 현재 브라우저에 저장된 공략/댓글/설정이 백업 파일 기준으로 바뀜. 계속할까?"
+        "백업을 불러오면 현재 화면과 Supabase에 백업 파일 기준으로 공략/댓글/설정이 업로드됨. 계속할까?"
       );
 
       if (!confirmed) {
@@ -2690,7 +2695,7 @@ function App() {
         <div>
           <p className="eyebrow">Write</p>
           <h2>{editingPostId ? "공략 수정" : "공략 작성"}</h2>
-          <p className="muted">게시판 종류에 따라 입력 양식이 달라집니다. 지금은 로컬 테스트라 이 브라우저에만 저장됩니다.</p>
+          <p className="muted">게시판 종류에 따라 입력 양식이 달라집니다. 작성한 공략은 Supabase에 저장되어 다른 기기에서도 공유됩니다.</p>
         </div>
         {editingPostId && <button type="button" className="ghost-button" onClick={cancelEditPost}>수정 취소</button>}
       </div>
@@ -2949,7 +2954,8 @@ function App() {
               onChange={(value) => updateForm("deck", value)}
               favoriteHeroes={favoriteOrders[getFavoriteHeroOrderKey(form.type)] || favoriteOrders.pveCommon || []}
               favoriteLabel={`${getBoardType(form.type).label} 자주 쓰는 영웅`}
-            />            <PetSelect label="사용 펫" value={form.pet} onChange={(value) => updateForm("pet", value)} />
+            />
+            <PetSelect label="사용 펫" value={form.pet} onChange={(value) => updateForm("pet", value)} />
           </div>
         )}
 
