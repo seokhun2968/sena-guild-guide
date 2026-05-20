@@ -3959,3 +3959,158 @@ button.plain-skill-slot:hover {
     max-height: 360px;
   }
 }
+
+/* =========================
+   Global dark theme text fix
+   - 어두운 배경에서 검정 글자 방지
+   ========================= */
+.app-shell,
+.main-content,
+.panel-section,
+.form-card,
+.detail-card,
+.admin-card,
+.post-detail,
+.access-card {
+  color: #e9f1ff;
+}
+
+.panel-section h1,
+.panel-section h2,
+.panel-section h3,
+.panel-section h4,
+.form-card h1,
+.form-card h2,
+.form-card h3,
+.form-card h4,
+.detail-card h1,
+.detail-card h2,
+.detail-card h3,
+.detail-card h4,
+.admin-card h1,
+.admin-card h2,
+.admin-card h3,
+.admin-card h4,
+.post-detail h1,
+.post-detail h2,
+.post-detail h3,
+.post-detail h4 {
+  color: #ffffff;
+}
+
+.section-title-row h2,
+.hero-section h1,
+.post-card h3,
+.type-card strong,
+.selector-head h4,
+.field-label,
+.field-label span,
+.write-form h3,
+.write-form h4 {
+  color: #ffffff;
+}
+
+.muted,
+.small-text,
+.post-preview,
+.post-meta,
+.detail-card p,
+.form-card p,
+.admin-card p {
+  color: #cbd6e8;
+}
+
+input,
+select,
+textarea {
+  color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #7f8da3;
+}
+
+/* =========================
+   Image viewer modal
+   ========================= */
+.detail-image-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.detail-image-button .detail-image {
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.detail-image-button:hover .detail-image {
+  transform: scale(1.01);
+  border-color: #ffd84c;
+}
+
+.image-viewer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.86);
+  display: grid;
+  place-items: center;
+}
+
+.image-viewer {
+  position: relative;
+  width: min(1100px, 96vw);
+  max-height: 92vh;
+  display: grid;
+  place-items: center;
+}
+
+.image-viewer img {
+  width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid #34435c;
+  background: #05070d;
+}
+
+.image-viewer-close {
+  position: absolute;
+  top: -46px;
+  right: 0;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid #3c4c66;
+  border-radius: 12px;
+  background: #0b1220;
+  color: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .image-viewer-backdrop {
+    padding: 10px;
+  }
+
+  .image-viewer {
+    width: 98vw;
+  }
+
+  .image-viewer-close {
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    background: rgba(11, 18, 32, 0.9);
+  }
+
+  .image-viewer img {
+    max-height: 86vh;
+    border-radius: 12px;
+  }
+}

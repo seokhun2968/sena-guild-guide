@@ -7,8 +7,6 @@ const SETTINGS_KEY = "sena_guide_site_settings_v1";
 
 const defaultSettings = {
   guildCode: "1234",
-  adminId: "admin",
-  adminPassword: "admin",
   favoriteHeroOrders: {
     guildWarDefense: ["라드그리드", "손오공", "엘리시아", "여포", "브란즈&브란셀", "란드그리드", "태오", "델론즈", "콜트"],
     guildWarAttack: ["파이", "밀리아", "겔리두스", "여포", "란드그리드", "로지", "미스트", "아킬라", "레긴레이프", "오목", "프레이야"],
@@ -754,6 +752,11 @@ async function fetchPostsFromSupabase() {
     .filter(Boolean);
 }
 
+function sanitizeSettings(settings) {
+  const { adminId, adminPassword, ...safeSettings } = settings || {};
+  return safeSettings;
+}
+
 async function fetchSettingsFromSupabase() {
   const { data, error } = await supabase
     .from("app_settings")
@@ -769,7 +772,7 @@ async function fetchSettingsFromSupabase() {
 async function saveSettingsToSupabase(settings) {
   const { error } = await supabase.from("app_settings").upsert({
     id: "main",
-    data: settings,
+    data: sanitizeSettings(settings),
     updated_at: new Date().toISOString(),
   });
 
@@ -1319,7 +1322,7 @@ function toggleBacklineHero(current = [], hero, formation = "") {
   return [...safeCurrent, hero];
 }
 
-function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteComment, accessMode }) {
+function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteComment, accessMode, onOpenImage }) {
   const [commentAuthor, setCommentAuthor] = useState("");
   const [commentPassword, setCommentPassword] = useState("");
   const [commentContent, setCommentContent] = useState("");
@@ -1446,14 +1449,24 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
             {(post.images?.length
               ? post.images
               : [{ id: "legacy-detail-image", dataUrl: post.image }]
-            ).map((image, index) => (
-              <img
-                key={image.id || `detail-image-${index}`}
-                className="detail-image"
-                src={image.dataUrl || image}
-                alt={`첨부 이미지 ${index + 1}`}
-              />
-            ))}
+            ).map((image, index) => {
+              const imageSrc = image.dataUrl || image;
+
+              return (
+                <button
+                  type="button"
+                  key={image.id || `detail-image-${index}`}
+                  className="detail-image-button"
+                  onClick={() => onOpenImage(imageSrc)}
+                >
+                  <img
+                    className="detail-image"
+                    src={imageSrc}
+                    alt={`첨부 이미지 ${index + 1}`}
+                  />
+                </button>
+              );
+            })}
           </div>
         )}
         <section className="detail-card content-card">
@@ -1680,9 +1693,19 @@ function AccessScreen({ onMemberLogin, onAdminLogin }) {
 
         <form className="access-card" onSubmit={(event) => { event.preventDefault(); onAdminLogin(adminIdInput, adminPasswordInput); }}>
           <h2>관리자 로그인</h2>
-          <p className="muted">영웅 표시 순서, 접속 코드, 게시글 관리를 설정합니다.</p>
-          <input value={adminIdInput} placeholder="관리자 아이디" onChange={(event) => setAdminIdInput(event.target.value)} />
-          <input type="password" value={adminPasswordInput} placeholder="관리자 비밀번호" onChange={(event) => setAdminPasswordInput(event.target.value)} />
+          <p className="muted">Supabase Auth 관리자 계정으로 로그인합니다.</p>
+          <input
+            type="email"
+            value={adminIdInput}
+            placeholder="관리자 이메일"
+            onChange={(event) => setAdminIdInput(event.target.value)}
+          />
+          <input
+            type="password"
+            value={adminPasswordInput}
+            placeholder="관리자 비밀번호"
+            onChange={(event) => setAdminPasswordInput(event.target.value)}
+          />
           <button type="submit" className="ghost-button">관리자로 입장</button>
         </form>
       </section>
@@ -1954,6 +1977,48 @@ function MistCutCalculator() {
 }
 
 function App() {
+  useEffect(() => {
+    const initAuth = async () => {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Supabase Auth 세션 확인 오류:", error);
+        setAuthLoading(false);
+        return;
+      }
+
+      setAuthSession(data.session || null);
+
+      if (data.session) {
+        setAccessMode("admin");
+        sessionStorage.setItem("sena_guide_access_mode", "admin");
+      }
+
+      setAuthLoading(false);
+    };
+
+    initAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthSession(session || null);
+
+      if (session) {
+        setAccessMode("admin");
+        sessionStorage.setItem("sena_guide_access_mode", "admin");
+      } else if (sessionStorage.getItem("sena_guide_access_mode") === "admin") {
+        setAccessMode("");
+        sessionStorage.removeItem("sena_guide_access_mode");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+  const [authSession, setAuthSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [supabaseStatus, setSupabaseStatus] = useState("확인 중");
   useEffect(() => {
     const loadSupabaseData = async () => {
@@ -2009,6 +2074,7 @@ function App() {
     }
   });
   const [selectedPost, setSelectedPost] = useState(null);
+  const [viewerImage, setViewerImage] = useState(null);
   const [postFilter, setPostFilter] = useState("all");
   const [postSearch, setPostSearch] = useState("");
   const [heroSearch, setHeroSearch] = useState("");
@@ -2361,20 +2427,42 @@ function App() {
     sessionStorage.setItem("sena_guide_access_mode", "member");
   };
 
-  const handleAdminLogin = (id, password) => {
-    if (String(id || "").trim() !== settings.adminId || String(password || "") !== settings.adminPassword) {
+  const handleAdminLogin = async (email, password) => {
+    const safeEmail = String(email || "").trim();
+    const safePassword = String(password || "");
+
+    if (!safeEmail || !safePassword) {
+      alert("관리자 이메일과 비밀번호를 입력해줘.");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: safeEmail,
+      password: safePassword,
+    });
+
+    if (error || !data.session) {
+      console.error("관리자 로그인 오류:", error);
       alert("관리자 계정이 맞지 않음.");
       return;
     }
+
+    setAuthSession(data.session);
     setAccessMode("admin");
     sessionStorage.setItem("sena_guide_access_mode", "admin");
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (authSession) {
+      await supabase.auth.signOut({ scope: "local" });
+    }
+
     sessionStorage.removeItem("sena_guide_access_mode");
+    setAuthSession(null);
     setAccessMode("");
     setActiveTab("home");
   };
+
 
   const updateFavoriteOrder = async (orderKey, value) => {
     const nextSettings = {
@@ -2461,14 +2549,14 @@ function App() {
       const importedPosts = backup.posts;
 
       const importedSettings = backup.settings
-        ? {
+        ? sanitizeSettings({
           ...defaultSettings,
           ...backup.settings,
           favoriteHeroOrders: {
             ...defaultSettings.favoriteHeroOrders,
             ...(backup.settings.favoriteHeroOrders || {}),
           },
-        }
+        })
         : settings;
 
       try {
@@ -2975,19 +3063,15 @@ function App() {
         <div className="form-grid-two">
           <label className="field-label">
             길드원 접속 코드
-            <input value={settings.guildCode} maxLength={12} onChange={(event) => updateSettingsField("guildCode", event.target.value)} />
-          </label>
-          <label className="field-label">
-            관리자 아이디
-            <input value={settings.adminId} onChange={(event) => updateSettingsField("adminId", event.target.value)} />
-          </label>
-          <label className="field-label wide-field">
-            관리자 비밀번호
-            <input type="password" value={settings.adminPassword} onChange={(event) => updateSettingsField("adminPassword", event.target.value)} />
+            <input
+              value={settings.guildCode}
+              maxLength={12}
+              onChange={(event) => updateSettingsField("guildCode", event.target.value)}
+            />
           </label>
         </div>
         <p className="muted small-text">
-          현재 설정은 Supabase에 저장되며, localStorage에도 임시 백업됩니다.
+          길드원 접속 코드와 영웅 순서는 Supabase에 저장됩니다. 관리자 계정은 Supabase Auth에서 관리합니다.
         </p>
       </section>
 
@@ -3085,6 +3169,17 @@ function App() {
     </section>
   );
 
+  if (authLoading) {
+    return (
+      <main className="access-page">
+        <section className="access-card">
+          <h2>로그인 상태 확인 중...</h2>
+          <p className="muted">Supabase Auth 세션을 확인하고 있습니다.</p>
+        </section>
+      </main>
+    );
+  }
+
   if (!accessMode) {
     return <AccessScreen onMemberLogin={handleMemberLogin} onAdminLogin={handleAdminLogin} />;
   }
@@ -3154,8 +3249,25 @@ function App() {
           onAddComment={addCommentToPost}
           onDeleteComment={deleteCommentFromPost}
           accessMode={accessMode}
+          onOpenImage={setViewerImage}
+
         />
       )}
+      {viewerImage && (
+        <div className="image-viewer-backdrop" onClick={() => setViewerImage(null)}>
+          <div className="image-viewer" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className="image-viewer-close"
+              onClick={() => setViewerImage(null)}
+            >
+              닫기
+            </button>
+            <img src={viewerImage} alt="확대 이미지" />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
