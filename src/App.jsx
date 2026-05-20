@@ -754,6 +754,28 @@ async function fetchPostsFromSupabase() {
     .filter(Boolean);
 }
 
+async function fetchSettingsFromSupabase() {
+  const { data, error } = await supabase
+    .from("app_settings")
+    .select("id, data, updated_at")
+    .eq("id", "main")
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data?.data || null;
+}
+
+async function saveSettingsToSupabase(settings) {
+  const { error } = await supabase.from("app_settings").upsert({
+    id: "main",
+    data: settings,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) throw error;
+}
+
 async function savePostToSupabase(post) {
   const { error } = await supabase.from("posts").upsert({
     id: post.id,
@@ -1922,13 +1944,28 @@ function MistCutCalculator() {
 function App() {
   const [supabaseStatus, setSupabaseStatus] = useState("확인 중");
   useEffect(() => {
-    const loadSupabasePosts = async () => {
+    const loadSupabaseData = async () => {
       try {
-        const cloudPosts = await fetchPostsFromSupabase();
+        const [cloudPosts, cloudSettings] = await Promise.all([
+          fetchPostsFromSupabase(),
+          fetchSettingsFromSupabase(),
+        ]);
+
         setSupabaseStatus("연결 성공");
 
         if (cloudPosts.length > 0) {
           setPosts(cloudPosts);
+        }
+
+        if (cloudSettings) {
+          setSettings({
+            ...defaultSettings,
+            ...cloudSettings,
+            favoriteHeroOrders: {
+              ...defaultSettings.favoriteHeroOrders,
+              ...(cloudSettings.favoriteHeroOrders || {}),
+            },
+          });
         }
       } catch (error) {
         console.error("Supabase 불러오기 오류:", error);
@@ -1936,7 +1973,7 @@ function App() {
       }
     };
 
-    loadSupabasePosts();
+    loadSupabaseData();
   }, []);
   const [activeTab, setActiveTab] = useState("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -2327,19 +2364,41 @@ function App() {
     setActiveTab("home");
   };
 
-  const updateFavoriteOrder = (orderKey, value) => {
-    setSettings((prev) => ({
-      ...prev,
+  const updateFavoriteOrder = async (orderKey, value) => {
+    const nextSettings = {
+      ...settings,
       favoriteHeroOrders: {
-        ...(prev.favoriteHeroOrders || {}),
+        ...(settings.favoriteHeroOrders || {}),
         [orderKey]: value,
       },
-    }));
+    };
+
+    setSettings(nextSettings);
+
+    try {
+      await saveSettingsToSupabase(nextSettings);
+    } catch (error) {
+      console.error("Supabase 설정 저장 오류:", error);
+      alert("Supabase에 영웅 순서 설정을 저장하지 못함.");
+    }
   };
 
-  const updateSettingsField = (field, value) => {
-    setSettings((prev) => ({ ...prev, [field]: value }));
+  const updateSettingsField = async (field, value) => {
+    const nextSettings = {
+      ...settings,
+      [field]: value,
+    };
+
+    setSettings(nextSettings);
+
+    try {
+      await saveSettingsToSupabase(nextSettings);
+    } catch (error) {
+      console.error("Supabase 설정 저장 오류:", error);
+      alert("Supabase에 설정을 저장하지 못함.");
+    }
   };
+
 
   const downloadFullBackup = () => {
     const backup = {
@@ -2894,7 +2953,9 @@ function App() {
             <input type="password" value={settings.adminPassword} onChange={(event) => updateSettingsField("adminPassword", event.target.value)} />
           </label>
         </div>
-        <p className="muted small-text">현재는 로컬 테스트 버전이라 브라우저 localStorage에 저장됩니다. 배포할 때는 Supabase에 연결하면 됩니다.</p>
+        <p className="muted small-text">
+          현재 설정은 Supabase에 저장되며, localStorage에도 임시 백업됩니다.
+        </p>
       </section>
 
       <section className="admin-card backup-admin-card">
