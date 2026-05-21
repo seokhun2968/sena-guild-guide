@@ -288,10 +288,17 @@ function SetPicker({ value, onChange }) {
 const boardTypes = {
   guildWar: {
     group: "PVP",
-    label: "길드전",
-    short: "3 vs 3",
-    description: "상대 방어덱 3명과 추천 공격덱 3명을 기준으로 작성합니다.",
+    label: "길드전 공격",
+    short: "공격",
+    description: "상대 방어덱과 공격덱을 작성합니다.",
     mode: "guildWar",
+  },
+  guildWarDefenseDeck: {
+    group: "PVP",
+    label: "길드전 방어덱",
+    short: "방어",
+    description: "길드전 방어덱을 작성합니다.",
+    mode: "guildWarDefense",
   },
   totalWar: {
     group: "PVP",
@@ -492,6 +499,10 @@ function isGuildWarType(type) {
   return getBoardType(type).mode === "guildWar";
 }
 
+function isGuildWarDefenseType(type) {
+  return getBoardType(type).mode === "guildWarDefense";
+}
+
 function isFiveHeroLikeType(type) {
   return getBoardType(type).mode === "fiveHero";
 }
@@ -524,81 +535,6 @@ function getFavoriteHeroOrderKey(type) {
   return "pveCommon";
 }
 
-const defaultPosts = [
-  {
-    id: "sample-1",
-    type: "guildWar",
-    title: "라오엘(유) 상대로 로미아 사용 메모",
-    author: "관리자",
-    password: "admin",
-    createdAt: "2026-05-18",
-    difficulty: "보통",
-    speedBattle: "win",
-    enemyDeck: ["라드그리드", "손오공", "엘리시아"],
-    enemyPet: "유",
-    attackDeck: ["로지", "미스트", "아킬라"],
-    attackPet: "멜패로",
-    formation: "밸런스 진형",
-    backlineHero: "미스트",
-    heroSettings: {
-      "로지": { set: "추적자", weaponOptions: "치명타 확률 / 약점 공격 확률", armorOptions: "피해 감소 / 생명력", accessory: "권능 6", memo: "초반 생존 확인" },
-      "미스트": { set: "조율자", weaponOptions: "효과 적중 / 속공", armorOptions: "효과 저항 / 피해 감소", accessory: "불사 6", memo: "후열 추천" },
-      "아킬라": { set: "수호자", weaponOptions: "막기 / 방어력", armorOptions: "생명력 / 피해 감소", accessory: "세공 자유", memo: "마무리 안정성" },
-    },
-    attackSkillSteps: [
-      { hero: "미스트", skill: "2스" },
-      { hero: "미스트", skill: "1스" },
-      { hero: "아킬라", skill: "2스" },
-    ],
-    enemySkillSteps: [],
-    skillOrder: "미2 → 미1 → 아2",
-    caution: "속공을 지면 불안정. 엘리시아가 오래 살아남는 상황은 주의.",
-    content: "검증 중인 공략입니다. 상대 펫이 루인지 유인지에 따라 결과를 분리해서 보는 게 좋습니다.",
-    image: "",
-  },
-  {
-    id: "sample-2",
-    type: "guildWar",
-    title: "여쁘란 상대는 아직 정리 필요",
-    author: "관리자",
-    password: "admin",
-    createdAt: "2026-05-18",
-    difficulty: "어려움",
-    speedBattle: "unknown",
-    enemyDeck: ["여포", "브란즈&브란셀", "란드그리드"],
-    enemyPet: "이린",
-    attackDeck: [],
-    attackPet: "",
-    formation: "",
-    backlineHero: "",
-    backlineHeroes: [],
-    heroSettings: {},
-    attackSkillSteps: [],
-    enemySkillSteps: [],
-    skillOrder: "",
-    caution: "여포 선스킬과 속공 기준을 같이 봐야 함.",
-    content: "길드원 제보가 들어오면 검증 후 정리 예정.",
-    image: "",
-  },
-  {
-    id: "sample-3",
-    type: "fiveHero",
-    title: "5인 콘텐츠 작성 예시",
-    author: "관리자",
-    password: "admin",
-    createdAt: "2026-05-18",
-    contentName: "레이드/보스전",
-    deck: ["파이", "미스트", "레이첼", "세인", "비스킷"],
-    pet: "루",
-    formation: "보호 진형",
-    skillOrder: "레이첼 1스 → 미스트 2스 → 파이 2스",
-    requirement: "딜러 치확/치피 세팅 권장",
-    caution: "자동보다 수동 기준으로 먼저 검증 필요.",
-    content: "5인 콘텐츠는 이 양식으로 작성하면 됩니다.",
-    image: "",
-  },
-];
-
 const initialForm = {
   type: "guildWar",
   title: "",
@@ -610,6 +546,9 @@ const initialForm = {
   enemyPet: "",
   attackDeck: [],
   attackPet: "",
+  defenseDeck: [],
+  defensePet: "",
+  defenseSkillSteps: [],
   formation: "",
   backlineHero: "",
   backlineHeroes: [],
@@ -1359,6 +1298,16 @@ function PostCard({ post, onClick }) {
         </div>
       )}
 
+{isGuildWarDefenseType(post.type) && (
+        <div className="mini-matchup single">
+          <div>
+            <span className="mini-label">방어덱 배치</span>
+            <HeroRow heroes={post.defenseDeck} size="xs" />
+            <PetChip name={post.defensePet} />
+          </div>
+        </div>
+      )}
+
       {isFiveHeroLikeType(post.type) && (
         <div className="mini-matchup single">
           <div>
@@ -1518,6 +1467,49 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
           </div>
         )}
 
+{isGuildWarDefenseType(post.type) && (
+          <div className="guild-war-board-detail">
+            <div className="matchup-board-row">
+              <FormationBoard
+                title="방어덱 배치"
+                heroes={post.defenseDeck || []}
+                pet={post.defensePet}
+                formation={post.formation}
+                backlineHero={post.backlineHero}
+                backlineHeroes={post.backlineHeroes || []}
+                steps={post.defenseSkillSteps || []}
+              />
+              <section className="detail-card central-strategy-card">
+                <h3>방어덱 운영 메모</h3>
+                <div className="strategy-chip-row">
+                  {post.formation && <span>{post.formation}</span>}
+                  {post.difficulty && <span>{post.difficulty}</span>}
+                </div>
+
+                {post.requirement && (
+                  <div className="strategy-note-block">
+                    <strong>방어 의도 / 노리는 덱</strong>
+                    <p>{post.requirement}</p>
+                  </div>
+                )}
+
+                <div className="strategy-note-block">
+                  <strong>주의사항</strong>
+                  <p>{post.caution || "주의사항 미기록"}</p>
+                </div>
+
+                {post.skillOrder && (
+                  <div className="strategy-note-block">
+                    <strong>스킬 순서 추가 메모</strong>
+                    <p>{post.skillOrder}</p>
+                  </div>
+                )}
+              </section>
+            </div>
+            <HeroSettingsTable heroes={post.defenseDeck || []} settings={post.heroSettings || {}} />
+          </div>
+        )}
+
         {isFiveHeroLikeType(post.type) && (
           <div className="detail-grid five-detail">
             <section className="detail-card">
@@ -1547,7 +1539,7 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
               ? post.images
               : [{ id: "legacy-detail-image", dataUrl: post.image }]
             ).map((image, index) => {
-              const imageSrc = image.dataUrl || image;
+              const imageSrc = image.url || image.dataUrl || image;
 
               return (
                 <button
@@ -2225,14 +2217,7 @@ function App() {
       return defaultSettings;
     }
   });
-  const [posts, setPosts] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : defaultPosts;
-    } catch {
-      return defaultPosts;
-    }
-  });
+  const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [viewerImage, setViewerImage] = useState(null);
   const [postFilter, setPostFilter] = useState("all");
@@ -2277,9 +2262,11 @@ function App() {
         post.skillOrder,
         ...(post.enemyDeck || []),
         ...(post.attackDeck || []),
+        ...(post.defenseDeck || []),
         ...(post.deck || []),
         post.enemyPet,
         post.attackPet,
+        post.defensePet,
         post.pet,
       ].join(" ");
 
@@ -2314,7 +2301,7 @@ function App() {
         {
           id: "legacy-image",
           name: "기존 이미지",
-          dataUrl: form.image,
+          url: form.image,
           compressed: false,
         },
       ]
@@ -2340,13 +2327,17 @@ function App() {
         )
       );
 
-      const nextImages = [...existingImages, ...compressedImages];
+      const uploadedImages = await Promise.all(
+        compressedImages.map((image) => uploadImageToStorage(image, "posts"))
+      );
+
+      const nextImages = [...existingImages, ...uploadedImages];
 
       updateForm("images", nextImages);
-      updateForm("image", nextImages[0]?.dataUrl || "");
+      updateForm("image", nextImages[0]?.url || nextImages[0]?.dataUrl || "");
     } catch (error) {
       console.error(error);
-      alert("이미지 압축 중 오류가 발생함.");
+      alert("이미지 업로드 중 오류가 발생함.");
     } finally {
       event.target.value = "";
     }
@@ -2356,13 +2347,13 @@ function App() {
     const currentImages = form.images?.length
       ? form.images
       : form.image
-        ? [{ id: "legacy-image", name: "기존 이미지", dataUrl: form.image }]
+        ? [{ id: "legacy-image", name: "기존 이미지", url: form.image }]
         : [];
 
     const nextImages = currentImages.filter((image) => image.id !== imageId);
 
     updateForm("images", nextImages);
-    updateForm("image", nextImages[0]?.dataUrl || "");
+    updateForm("image", nextImages[0]?.url || nextImages[0]?.dataUrl || "");
   };
 
   const handleSubmit = async (event) => {
@@ -2387,13 +2378,18 @@ function App() {
 
     if (isGuildWarType(form.type)) {
       if (form.enemyDeck.length !== 3) {
-        alert("길드전 공략은 상대 방덱 3명을 선택해야 함.");
+        alert("길드전 공격 공략은 상대 방덱 3명을 선택해야 함.");
         return;
       }
       if (form.attackDeck.length > 0 && form.attackDeck.length !== 3) {
         alert("추천 공격덱은 입력하려면 3명을 선택해야 함.");
         return;
       }
+    }
+
+    if (isGuildWarDefenseType(form.type) && form.defenseDeck.length !== 3) {
+      alert("길드전 방어덱은 방어 영웅 3명을 선택해야 함.");
+      return;
     }
 
     if (isFiveHeroLikeType(form.type) && form.deck.length !== 5) {
@@ -2404,13 +2400,13 @@ function App() {
     const normalizedImages = form.images?.length
       ? form.images
       : form.image
-        ? [{ id: "legacy-image", name: "기존 이미지", dataUrl: form.image }]
+        ? [{ id: "legacy-image", name: "기존 이미지", url: form.image }]
         : [];
 
     const normalizedPost = {
       ...form,
       images: normalizedImages,
-      image: normalizedImages[0]?.dataUrl || "",
+      image: normalizedImages[0]?.url || normalizedImages[0]?.dataUrl || "",
       backlineHero: (form.backlineHeroes || [])[0] || form.backlineHero || "",
       comments: form.comments || [],
       id: editingPostId || `post-${Date.now()}`,
@@ -2458,12 +2454,15 @@ function App() {
       ...initialForm,
       ...post,
       password,
-      images: post.images || (post.image ? [{ id: "legacy-image", name: "기존 이미지", dataUrl: post.image }] : []),
+      images: post.images || (post.image ? [{ id: "legacy-image", name: "기존 이미지", url: post.image }] : []),
       enemyDeck: post.enemyDeck || [],
       attackDeck: post.attackDeck || [],
+      defenseDeck: post.defenseDeck || [],
+      defensePet: post.defensePet || "",
       deck: post.deck || [],
       attackSkillSteps: post.attackSkillSteps || [],
       enemySkillSteps: post.enemySkillSteps || [],
+      defenseSkillSteps: post.defenseSkillSteps || [],
       formation: post.formation || "",
       backlineHero: post.backlineHero || "",
       backlineHeroes: post.backlineHeroes || (post.backlineHero ? [post.backlineHero] : []),
@@ -3348,6 +3347,118 @@ function App() {
           </div>
         )}
 
+{isGuildWarDefenseType(form.type) && (
+          <div className="form-card">
+            <h3>길드전 방어덱 배치</h3>
+            <div className="guildwar-write-flow guildwar-write-flow-v2">
+              <div className="guildwar-write-step defense-step defense-heroes-step">
+                <HeroSelector
+                  label="내 방어덱"
+                  selected={form.defenseDeck}
+                  max={3}
+                  onChange={(value) => updateForm("defenseDeck", value)}
+                  favoriteHeroes={favoriteOrders.guildWarDefense || []}
+                  favoriteLabel="자주 쓰는 방어덱 영웅"
+                />
+              </div>
+
+              <div className="guildwar-write-step defense-step defense-pet-step">
+                <PetSelect
+                  label="방어 펫"
+                  value={form.defensePet}
+                  onChange={(value) => updateForm("defensePet", value)}
+                />
+              </div>
+
+              <div className="guildwar-write-step defense-step defense-skill-step">
+                <SkillOrderBuilder
+                  title="방어덱 스킬 순서"
+                  heroes={form.defenseDeck}
+                  steps={form.defenseSkillSteps}
+                  onChange={(value) => updateForm("defenseSkillSteps", value)}
+                />
+              </div>
+            </div>
+
+            {form.defenseDeck.length === 3 && (
+              <div className="formation-edit-box">
+                <div className="form-grid-two">
+                  <label className="field-label">
+                    진형
+                    <select
+                      value={form.formation}
+                      onChange={(event) => {
+                        const nextFormation = event.target.value;
+                        const currentBacklines = normalizeBacklineHeroes(form.defenseDeck, form.backlineHeroes || [], form.backlineHero);
+                        const nextBacklines = nextFormation === "보호 진형" ? currentBacklines.slice(0, 1) : currentBacklines;
+
+                        updateForm("formation", nextFormation);
+                        updateForm("backlineHeroes", nextBacklines);
+                        updateForm("backlineHero", nextBacklines[0] || "");
+                      }}
+                    >
+                      <option value="">진형 선택</option>
+                      {formationOptions.map((name) => <option key={name} value={name}>{name}</option>)}
+                    </select>
+                  </label>
+                  <div className="field-label backline-picker-field">
+                    <span>후열 영웅</span>
+                    <div className="backline-picker-row">
+                      {form.defenseDeck.map((hero) => {
+                        const selectedBacklines = normalizeBacklineHeroes(form.defenseDeck, form.backlineHeroes || [], form.backlineHero);
+                        const isSelected = selectedBacklines.includes(hero);
+
+                        return (
+                          <button
+                            type="button"
+                            key={`defense-backline-pick-${hero}`}
+                            className={`backline-picker-button ${isSelected ? "selected" : ""}`}
+                            onClick={() => {
+                              const nextBacklines = toggleBacklineHero(selectedBacklines, hero, form.formation);
+                              updateForm("backlineHeroes", nextBacklines);
+                              updateForm("backlineHero", nextBacklines[0] || "");
+                            }}
+                          >
+                            <HeroIcon name={hero} size="xs" />
+                            <span>{isSelected ? "후열" : "전열"}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="muted small-text">
+                      보호 진형은 후열 1명만 선택되고, 나머지 진형은 여러 명 선택 가능.
+                    </p>
+                  </div>
+                </div>
+
+                <FormationBoard
+                  title="방어덱 미리보기"
+                  heroes={form.defenseDeck}
+                  pet={form.defensePet}
+                  formation={form.formation}
+                  backlineHero={form.backlineHero}
+                  backlineHeroes={form.backlineHeroes || []}
+                  steps={form.defenseSkillSteps}
+                />
+              </div>
+            )}
+
+            <div className="hero-settings-form-block">
+              <div className="form-block-title-row">
+                <div>
+                  <h4>영웅별 세팅</h4>
+                  <p className="muted small-text">선택 입력. 비워도 방어덱 등록은 가능함.</p>
+                </div>
+              </div>
+              <HeroSettingsEditor
+                heroes={form.defenseDeck}
+                settings={form.heroSettings}
+                onChange={(value) => updateForm("heroSettings", value)}
+              />
+            </div>
+          </div>
+        )}
+
         {isFiveHeroLikeType(form.type) && (
           <div className="form-card">
             <h3>{getBoardType(form.type).label} 정보</h3>
@@ -3394,8 +3505,12 @@ function App() {
               <textarea value={form.caution} placeholder="예: 속공 지면 위험 / 특정 영웅 생존 시 불안정" onChange={(event) => updateForm("caution", event.target.value)} />
             </label>
             <label className="field-label wide-field">
-              필수 조건/세팅
-              <textarea value={form.requirement} placeholder="예: 6권 필요, 효저 100 권장" onChange={(event) => updateForm("requirement", event.target.value)} />
+              {isGuildWarDefenseType(form.type) ? "방어 의도 / 노리는 덱" : "필수 조건/세팅"}
+              <textarea
+                value={form.requirement}
+                placeholder={isGuildWarDefenseType(form.type) ? "예: 라오엘 소모 유도, 여포 선스킬 압박, 오공 생존 기반" : "예: 6권 필요, 효저 100 권장"}
+                onChange={(event) => updateForm("requirement", event.target.value)}
+              />
             </label>
             <label className="field-label wide-field">
               본문
@@ -3421,7 +3536,7 @@ function App() {
                 : [{ id: "legacy-image", name: "기존 이미지", dataUrl: form.image }]
               ).map((image, index) => (
                 <div className="image-preview-item" key={image.id || `preview-${index}`}>
-                  <img src={image.dataUrl || image} alt={`첨부 미리보기 ${index + 1}`} />
+                  <img src={image.url || image.dataUrl || image} alt={`첨부 미리보기 ${index + 1}`} />
 
                   <div className="image-preview-meta">
                     <span>{image.name || `이미지 ${index + 1}`}</span>
