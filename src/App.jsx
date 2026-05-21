@@ -654,6 +654,55 @@ function compressImageFile(file, options = {}) {
   });
 }
 
+function dataUrlToBlob(dataUrl) {
+  const [header, base64] = dataUrl.split(",");
+  const mimeMatch = header.match(/data:(.*?);base64/);
+  const mimeType = mimeMatch?.[1] || "image/jpeg";
+
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return new Blob([bytes], { type: mimeType });
+}
+
+function safeFileName(fileName = "image.jpg") {
+  const extension = fileName.includes(".")
+    ? fileName.split(".").pop().toLowerCase()
+    : "jpg";
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}.${extension || "jpg"}`;
+}
+
+async function uploadImageToStorage(image) {
+  const bucketName = "guide-images";
+  const blob = dataUrlToBlob(image.dataUrl);
+  const filePath = `posts/${todayText()}/${safeFileName(image.name)}`;
+
+  const { error } = await supabase.storage
+    .from(bucketName)
+    .upload(filePath, blob, {
+      contentType: blob.type || "image/jpeg",
+      upsert: false,
+    });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+
+  return {
+    id: image.id,
+    name: image.name,
+    size: image.size,
+    compressed: image.compressed,
+    path: filePath,
+    url: data.publicUrl,
+  };
+}
+
 function readFileAsText(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1442,8 +1491,7 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
               ? post.images
               : [{ id: "legacy-detail-image", dataUrl: post.image }]
             ).map((image, index) => {
-              const imageSrc = image.dataUrl || image;
-
+              const imageSrc = image.url || image.dataUrl || image;
               return (
                 <button
                   type="button"
@@ -2161,10 +2209,14 @@ function App() {
         )
       );
 
-      const nextImages = [...existingImages, ...compressedImages];
+      const uploadedImages = await Promise.all(
+        compressedImages.map((image) => uploadImageToStorage(image))
+      );
+
+      const nextImages = [...existingImages, ...uploadedImages];
 
       updateForm("images", nextImages);
-      updateForm("image", nextImages[0]?.dataUrl || "");
+      updateForm("image", nextImages[0]?.url || nextImages[0]?.dataUrl || "");
     } catch (error) {
       console.error(error);
       alert("이미지 압축 중 오류가 발생함.");
@@ -2230,14 +2282,13 @@ function App() {
     const normalizedImages = form.images?.length
       ? form.images
       : form.image
-        ? [{ id: "legacy-image", name: "기존 이미지", dataUrl: form.image }]
+        ? [{ id: "legacy-image", name: "기존 이미지", url: form.image }]
         : [];
 
     const normalizedPost = {
       ...form,
       images: normalizedImages,
-      image: normalizedImages[0]?.dataUrl || "",
-      backlineHero: (form.backlineHeroes || [])[0] || form.backlineHero || "",
+      image: normalizedImages[0]?.url || normalizedImages[0]?.dataUrl || "", backlineHero: (form.backlineHeroes || [])[0] || form.backlineHero || "",
       comments: form.comments || [],
       id: editingPostId || `post-${Date.now()}`,
       createdAt: editingPostId ? posts.find((post) => post.id === editingPostId)?.createdAt || todayText() : todayText(),
@@ -2284,8 +2335,7 @@ function App() {
       ...initialForm,
       ...post,
       password,
-      images: post.images || (post.image ? [{ id: "legacy-image", name: "기존 이미지", dataUrl: post.image }] : []),
-      enemyDeck: post.enemyDeck || [],
+      images: post.images || (post.image ? [{ id: "legacy-image", name: "기존 이미지", url: post.image }] : []), enemyDeck: post.enemyDeck || [],
       attackDeck: post.attackDeck || [],
       defenseDeck: post.defenseDeck || [],
       defensePet: post.defensePet || "",
@@ -3114,8 +3164,7 @@ function App() {
                 : [{ id: "legacy-image", name: "기존 이미지", dataUrl: form.image }]
               ).map((image, index) => (
                 <div className="image-preview-item" key={image.id || `preview-${index}`}>
-                  <img src={image.dataUrl || image} alt={`첨부 미리보기 ${index + 1}`} />
-
+                  <img src={image.url || image.dataUrl || image} alt={`첨부 미리보기 ${index + 1}`} />
                   <div className="image-preview-meta">
                     <span>{image.name || `이미지 ${index + 1}`}</span>
                     <button
