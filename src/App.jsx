@@ -1825,20 +1825,20 @@ function AccessScreen({ onMemberLogin, onAdminLogin }) {
         <div className="brand-mark large">S</div>
         <p className="eyebrow">Seven Knights Re:Birth</p>
         <h1>세나 공략 허브</h1>
-        <p>길드전 공략, 5인 콘텐츠 공략, 영웅 도감을 한곳에서 확인하는 공간입니다.</p>
+        <p>세나 공략 모음집</p>
       </section>
 
       <section className="access-grid">
         <form className="access-card" onSubmit={(event) => { event.preventDefault(); onMemberLogin(guildCodeInput); }}>
           <h2>길드원 입장</h2>
-          <p className="muted">공유받은 접속 코드를 입력하면 공략을 보고 작성할 수 있습니다.</p>
+          <p className="muted">카톡방 공지 확인 부탁드립니다.</p>
           <input value={guildCodeInput} placeholder="접속 코드" onChange={(event) => setGuildCodeInput(event.target.value)} />
           <button type="submit" className="primary-button">입장하기</button>
         </form>
 
         <form className="access-card" onSubmit={(event) => { event.preventDefault(); onAdminLogin(adminIdInput, adminPasswordInput); }}>
           <h2>관리자 로그인</h2>
-          <p className="muted">Supabase Auth 관리자 계정으로 로그인합니다.</p>
+          <p className="muted">관리자 계정으로 로그인합니다.</p>
           <input
             type="email"
             value={adminIdInput}
@@ -2898,9 +2898,9 @@ function App() {
     <>
       <section className="hero-section">
         <p className="eyebrow">Seven Knights Re:Birth</p>
-        <h1>길드전 공략과 길드원 제보를 한곳에</h1>
+        <h1>세나 공략 공유집</h1>
         <p>
-          길드전 3 vs 3 공략부터 5인 콘텐츠 공략까지, 작성 양식에 맞춰 올리면 보기 좋은 공략 카드로 정리됩니다.
+          바다 화이팅!!
         </p>
         <div className="hero-actions">
           <button type="button" className="primary-button" onClick={() => setActiveTab("write")}>공략 작성하기</button>
@@ -2936,7 +2936,7 @@ function App() {
         <div>
           <p className="eyebrow">Notice</p>
           <h2>공지사항</h2>
-          <p className="muted">길드원이 꼭 확인해야 하는 내용을 모아둔 공간입니다.</p>
+          <p className="muted">한번씩 읽어 주세요.</p>
         </div>
 
         {isRealAdmin && (
@@ -3108,7 +3108,7 @@ function App() {
         <div>
           <p className="eyebrow">Write</p>
           <h2>{editingPostId ? "공략 수정" : "공략 작성"}</h2>
-          <p className="muted">게시판 종류에 따라 입력 양식이 달라집니다. 지금은 로컬 테스트라 이 브라우저에만 저장됩니다.</p>
+          <p className="muted">여러분의 공략을 적어주세요!</p>
         </div>
         {editingPostId && <button type="button" className="ghost-button" onClick={cancelEditPost}>수정 취소</button>}
       </div>
@@ -3170,7 +3170,7 @@ function App() {
           <div className="form-card form-grid-two">
             <label className="field-label">
               제목
-              <input value={form.title} placeholder="예: 라오엘(유) 상대로 로미아 후기" onChange={(event) => updateForm("title", event.target.value)} />
+              <input value={form.title} placeholder="예: 즉사로 라오엘 상대" onChange={(event) => updateForm("title", event.target.value)} />
             </label>
             <label className="field-label">
               난이도/평가
@@ -3187,7 +3187,7 @@ function App() {
             </label>
             <label className="field-label">
               비밀번호
-              <input type="password" value={form.password} placeholder="나중에 수정/삭제용" onChange={(event) => updateForm("password", event.target.value)} />
+              <input type="password" value={form.password} placeholder="숫자 4자리" onChange={(event) => updateForm("password", event.target.value)} />
             </label>
           </div>
         )}
