@@ -1984,16 +1984,19 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBoardGroup, setSelectedBoardGroup] = useState("PVP");
   const [selectedPostGroup, setSelectedPostGroup] = useState("PVP");
-  const [accessMode, setAccessMode] = useState(() => sessionStorage.getItem("sena_guide_access_mode") || "");
+  const [accessMode, setAccessMode] = useState(() => {
+    const savedMode = sessionStorage.getItem("sena_guide_access_mode");
+    return savedMode === "member" ? "member" : "";
+  });
   const [settings, setSettings] = useState(() => {
     try {
       const saved = localStorage.getItem(SETTINGS_KEY);
       if (!saved) return defaultSettings;
 
-      const parsed = JSON.parse(saved);
+      const parsed = sanitizeSettings(JSON.parse(saved));
       return {
         ...defaultSettings,
-        ...sanitizeSettings(parsed),
+        ...parsed,
         favoriteHeroOrders: {
           ...defaultSettings.favoriteHeroOrders,
           ...(parsed.favoriteHeroOrders || {}),
@@ -2011,6 +2014,8 @@ function App() {
   const [heroSearch, setHeroSearch] = useState("");
   const [form, setForm] = useState(initialForm);
   const [editingPostId, setEditingPostId] = useState(null);
+
+  const isRealAdmin = accessMode === "admin" && Boolean(authSession);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -2094,7 +2099,7 @@ function App() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(sanitizeSettings(settings)));
   }, [settings]);
 
-  const navItems = useMemo(() => (accessMode === "admin" ? [...baseNavItems, adminNavItem] : baseNavItems), [accessMode]);
+  const navItems = useMemo(() => (isRealAdmin ? [...baseNavItems, adminNavItem] : baseNavItems), [isRealAdmin]);
 
   const favoriteOrders = settings.favoriteHeroOrders || defaultSettings.favoriteHeroOrders;
 
@@ -2282,7 +2287,7 @@ function App() {
 
   const startEditPost = (post) => {
     let password = post.password || "";
-    if (accessMode !== "admin") {
+    if (!isRealAdmin) {
       password = prompt("글 작성 시 입력한 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2313,7 +2318,7 @@ function App() {
   };
 
   const deletePost = async (post) => {
-    if (accessMode !== "admin") {
+    if (!isRealAdmin) {
       const password = prompt("삭제하려면 글 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2382,7 +2387,7 @@ function App() {
 
     if (!targetComment) return;
 
-    if (accessMode !== "admin") {
+    if (!isRealAdmin) {
       const password = prompt("댓글 삭제 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2510,7 +2515,7 @@ function App() {
       version: "sena-guide-v1",
       type: "full",
       exportedAt: new Date().toISOString(),
-      settings,
+      settings: sanitizeSettings(settings),
       posts,
     };
 
@@ -3202,7 +3207,7 @@ function App() {
         </div>
         <Nav activeTab={activeTab} setActiveTab={setActiveTab} navItems={navItems} />
         <div className="mode-box">
-          <span>{accessMode === "admin" ? "관리자 모드" : "길드원 모드"}</span>
+          <span>{isRealAdmin ? "관리자 모드" : "길드원 모드"}</span>
           <button type="button" className="ghost-button tiny-button" onClick={logout}>나가기</button>
         </div>
       </aside>
@@ -3228,7 +3233,7 @@ function App() {
             </div>
             <Nav activeTab={activeTab} setActiveTab={setActiveTab} closeMenu={() => setMobileMenuOpen(false)} navItems={navItems} />
             <div className="mode-box mobile-mode-box">
-              <span>{accessMode === "admin" ? "관리자 모드" : "길드원 모드"}</span>
+              <span>{isRealAdmin ? "관리자 모드" : "길드원 모드"}</span>
               <button type="button" className="ghost-button tiny-button" onClick={logout}>나가기</button>
             </div>
             <button type="button" className="ghost-button" onClick={() => setMobileMenuOpen(false)}>닫기</button>
@@ -3243,7 +3248,7 @@ function App() {
         {activeTab === "mistCut" && <MistCutCalculator />}
         {activeTab === "heroes" && renderHeroes()}
         {activeTab === "meta" && renderMeta()}
-        {activeTab === "admin" && accessMode === "admin" && renderAdmin()}
+        {activeTab === "admin" && isRealAdmin && renderAdmin()}
       </main>
 
       {selectedPost && (
@@ -3254,7 +3259,7 @@ function App() {
           onDelete={deletePost}
           onAddComment={addCommentToPost}
           onDeleteComment={deleteCommentFromPost}
-          accessMode={accessMode}
+          accessMode={isRealAdmin ? "admin" : accessMode}
           onOpenImage={setViewerImage}
 
         />
