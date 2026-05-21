@@ -4114,3 +4114,95 @@ textarea::placeholder {
     border-radius: 12px;
   }
 }
+
+/* =========================
+   Mobile compact post list
+   - 모바일 공략 목록 압축 표시
+   ========================= */
+@media (max-width: 720px) {
+  .post-grid,
+  .compact-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .post-card {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(14, 23, 40, 0.96);
+    border: 1px solid rgba(72, 84, 108, 0.85);
+    box-shadow: none;
+  }
+
+  .post-card:hover {
+    border-color: #ffd84c;
+  }
+
+  .post-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .post-card-head > div {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .post-card .eyebrow {
+    margin: 0 0 4px;
+    color: #ffe69a;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.08em;
+  }
+
+  .post-card h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.28;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-card .tag {
+    flex: 0 0 auto;
+    max-width: 84px;
+    padding: 4px 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-status-row,
+  .mini-matchup,
+  .post-preview {
+    display: none !important;
+  }
+
+  .post-meta {
+    margin-top: 6px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 6px;
+    color: #aebbd0;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .post-meta span + span::before {
+    content: "·";
+    margin-right: 6px;
+    color: #6f7d93;
+  }
+
+  .panel-section .post-grid {
+    margin-top: 10px;
+  }
+}
