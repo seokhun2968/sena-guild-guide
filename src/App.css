@@ -4206,3 +4206,176 @@ textarea::placeholder {
     margin-top: 10px;
   }
 }
+
+/* =========================
+   PC polish before guild release
+   - PC 흰 줄/배경 정리
+   - PC 공략 목록 컴팩트화
+   - PC 공략 상세 보기 가독성 개선
+   ========================= */
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* PC 전용 */
+@media (min-width: 821px) {
+  .app-shell {
+    background: radial-gradient(circle at top, #172033 0, #070b13 45%, #05070d 100%);
+  }
+
+  .main-content {
+    width: min(1180px, calc(100vw - 340px));
+    padding: 34px 28px 80px;
+  }
+
+  /* 1) 뒤에 보이는 이상한 흰 줄/여백 완화 */
+  .panel-section,
+  .hero-section,
+  .post-detail {
+    box-shadow: none;
+  }
+
+  /* 2) PC 공략 목록도 모바일처럼 컴팩트하게 */
+  .post-grid,
+  .compact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+
+  .post-card {
+    min-height: 0 !important;
+    display: block;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: rgba(14, 23, 40, 0.96);
+  }
+
+  .post-card-head {
+    align-items: center;
+  }
+
+  .post-card .eyebrow {
+    margin: 0 0 4px;
+    font-size: 11px;
+  }
+
+  .post-card h3 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-card .tag {
+    padding: 5px 9px;
+    font-size: 11px;
+  }
+
+  .post-status-row,
+  .mini-matchup,
+  .post-preview {
+    display: none !important;
+  }
+
+  .post-meta {
+    margin-top: 6px;
+    justify-content: flex-start;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .post-meta span + span::before {
+    content: "·";
+    margin-right: 8px;
+    color: #6f7d93;
+  }
+
+  /* 3) PC 공략 상세 모달 가독성 개선 */
+  .modal-backdrop {
+    align-items: center;
+    padding: 28px;
+  }
+
+  .post-detail {
+    width: min(980px, calc(100vw - 80px));
+    max-height: 88vh;
+    padding: 24px;
+    border-radius: 24px;
+  }
+
+  .detail-top {
+    align-items: flex-start;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .detail-top h2 {
+    font-size: 26px;
+    line-height: 1.3;
+  }
+
+  .detail-actions {
+    flex-shrink: 0;
+  }
+
+  /* 길드전 공격 상세: 상대/추천을 2열, 전략 메모는 아래 전체 */
+  .matchup-board-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .matchup-board-row > .deck-skill-card {
+    order: 1;
+  }
+
+  .matchup-board-row > .formation-board-card {
+    order: 2;
+  }
+
+  .matchup-board-row > .central-strategy-card {
+    order: 3;
+    grid-column: 1 / -1;
+    min-height: auto;
+  }
+
+  .deck-skill-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .deck-skill-unit {
+    grid-template-columns: 48px minmax(0, 1fr);
+    padding: 9px 7px;
+  }
+
+  .formation-board {
+    padding: 12px;
+  }
+
+  .formation-position {
+    min-width: 92px;
+  }
+
+  .strategy-note-block {
+    padding: 12px;
+  }
+
+  .content-card,
+  .comment-card,
+  .detail-image-gallery {
+    margin-top: 14px;
+  }
+}
+

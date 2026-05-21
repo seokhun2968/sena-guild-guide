@@ -59,7 +59,6 @@ const baseNavItems = [
   { id: "write", label: "공략 작성" },
   { id: "mistCut", label: "미스트 즉사컷" },
   { id: "heroes", label: "영웅 도감" },
-  { id: "meta", label: "메타 메모" },
 ];
 
 const adminNavItem = { id: "admin", label: "관리자 설정" };
@@ -3314,22 +3313,6 @@ function App() {
     </section>
   );
 
-  const renderMeta = () => (
-    <section className="panel-section">
-      <div className="section-title-row">
-        <div>
-          <p className="eyebrow">Memo</p>
-          <h2>메타 메모</h2>
-        </div>
-      </div>
-      <div className="memo-list">
-        <article><h3>운영 방향</h3><p>전투 기록을 전부 모으기보다, 길드원이 직접 쓴 공략을 보기 좋은 형태로 정리하는 사이트.</p></article>
-        <article><h3>게시판 구조</h3><p>길드전은 3 vs 3 양식, 다른 콘텐츠는 5인 덱 양식, 자유 공략은 일반 글 양식으로 분리.</p></article>
-        <article><h3>다음 단계</h3><p>작성 폼이 마음에 들면 Supabase 저장, 닉네임/비밀번호 수정 삭제, 이미지 압축 업로드를 붙일 예정.</p></article>
-      </div>
-    </section>
-  );
-
   if (authLoading) {
     return (
       <main className="access-page">
@@ -3397,7 +3380,6 @@ function App() {
         {activeTab === "write" && renderWrite()}
         {activeTab === "mistCut" && <MistCutCalculator />}
         {activeTab === "heroes" && renderHeroes()}
-        {activeTab === "meta" && renderMeta()}
         {activeTab === "admin" && accessMode === "admin" && renderAdmin()}
       </main>
 
