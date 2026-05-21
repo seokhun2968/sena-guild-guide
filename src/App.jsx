@@ -288,10 +288,17 @@ function SetPicker({ value, onChange }) {
 const boardTypes = {
   guildWar: {
     group: "PVP",
-    label: "길드전",
-    short: "3 vs 3",
+    label: "길드전 공격",
+    short: "공격",
     description: "상대 방어덱 3명과 추천 공격덱 3명을 기준으로 작성합니다.",
     mode: "guildWar",
+  },
+  guildWarDefenseDeck: {
+    group: "PVP",
+    label: "길드전 방어덱",
+    short: "방어",
+    description: "내 방어덱 3명, 펫, 진형, 스킬 순서, 세팅을 공유합니다.",
+    mode: "guildWarDefense",
   },
   totalWar: {
     group: "PVP",
@@ -492,6 +499,10 @@ function isGuildWarType(type) {
   return getBoardType(type).mode === "guildWar";
 }
 
+function isGuildWarDefenseType(type) {
+  return getBoardType(type).mode === "guildWarDefense";
+}
+
 function isFiveHeroLikeType(type) {
   return getBoardType(type).mode === "fiveHero";
 }
@@ -610,6 +621,9 @@ const initialForm = {
   enemyPet: "",
   attackDeck: [],
   attackPet: "",
+  defenseDeck: [],
+  defensePet: "",
+  defenseSkillSteps: [],
   formation: "",
   backlineHero: "",
   backlineHeroes: [],
@@ -1262,6 +1276,16 @@ function PostCard({ post, onClick }) {
         </div>
       )}
 
+      {isGuildWarDefenseType(post.type) && (
+        <div className="mini-matchup single">
+          <div>
+            <span className="mini-label">방어덱 배치</span>
+            <HeroRow heroes={post.defenseDeck} size="xs" />
+            <PetChip name={post.defensePet} />
+          </div>
+        </div>
+      )}
+
       {isFiveHeroLikeType(post.type) && (
         <div className="mini-matchup single">
           <div>
@@ -1418,6 +1442,49 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
               />
             </div>
             <HeroSettingsTable heroes={post.attackDeck || []} settings={post.heroSettings || {}} />
+          </div>
+        )}
+
+        {isGuildWarDefenseType(post.type) && (
+          <div className="guild-war-board-detail">
+            <div className="matchup-board-row">
+              <FormationBoard
+                title="방어덱 배치"
+                heroes={post.defenseDeck || []}
+                pet={post.defensePet}
+                formation={post.formation}
+                backlineHero={post.backlineHero}
+                backlineHeroes={post.backlineHeroes || []}
+                steps={post.defenseSkillSteps || []}
+              />
+              <section className="detail-card central-strategy-card">
+                <h3>방어덱 운영 메모</h3>
+                <div className="strategy-chip-row">
+                  {post.formation && <span>{post.formation}</span>}
+                  {post.difficulty && <span>{post.difficulty}</span>}
+                </div>
+
+                {post.requirement && (
+                  <div className="strategy-note-block">
+                    <strong>방어 의도 / 노리는 덱</strong>
+                    <p>{post.requirement}</p>
+                  </div>
+                )}
+
+                <div className="strategy-note-block">
+                  <strong>주의사항</strong>
+                  <p>{post.caution || "주의사항 미기록"}</p>
+                </div>
+
+                {post.skillOrder && (
+                  <div className="strategy-note-block">
+                    <strong>스킬 순서 추가 메모</strong>
+                    <p>{post.skillOrder}</p>
+                  </div>
+                )}
+              </section>
+            </div>
+            <HeroSettingsTable heroes={post.defenseDeck || []} settings={post.heroSettings || {}} />
           </div>
         )}
 
@@ -1977,46 +2044,6 @@ function MistCutCalculator() {
 }
 
 function App() {
-  const [authSession, setAuthSession] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [supabaseStatus, setSupabaseStatus] = useState("확인 중");
-  const [activeTab, setActiveTab] = useState("home");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedBoardGroup, setSelectedBoardGroup] = useState("PVP");
-  const [selectedPostGroup, setSelectedPostGroup] = useState("PVP");
-  const [accessMode, setAccessMode] = useState(() => {
-    const savedMode = sessionStorage.getItem("sena_guide_access_mode");
-    return savedMode === "member" ? "member" : "";
-  });
-  const [settings, setSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem(SETTINGS_KEY);
-      if (!saved) return defaultSettings;
-
-      const parsed = sanitizeSettings(JSON.parse(saved));
-      return {
-        ...defaultSettings,
-        ...parsed,
-        favoriteHeroOrders: {
-          ...defaultSettings.favoriteHeroOrders,
-          ...(parsed.favoriteHeroOrders || {}),
-        },
-      };
-    } catch {
-      return defaultSettings;
-    }
-  });
-  const [posts, setPosts] = useState([]);
-  const [selectedPost, setSelectedPost] = useState(null);
-  const [viewerImage, setViewerImage] = useState(null);
-  const [postFilter, setPostFilter] = useState("all");
-  const [postSearch, setPostSearch] = useState("");
-  const [heroSearch, setHeroSearch] = useState("");
-  const [form, setForm] = useState(initialForm);
-  const [editingPostId, setEditingPostId] = useState(null);
-
-  const isRealAdmin = accessMode === "admin" && Boolean(authSession);
-
   useEffect(() => {
     const initAuth = async () => {
       const { data, error } = await supabase.auth.getSession();
@@ -2032,9 +2059,6 @@ function App() {
       if (data.session) {
         setAccessMode("admin");
         sessionStorage.setItem("sena_guide_access_mode", "admin");
-      } else if (sessionStorage.getItem("sena_guide_access_mode") === "admin") {
-        setAccessMode("");
-        sessionStorage.removeItem("sena_guide_access_mode");
       }
 
       setAuthLoading(false);
@@ -2060,7 +2084,9 @@ function App() {
       subscription.unsubscribe();
     };
   }, []);
-
+  const [authSession, setAuthSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [supabaseStatus, setSupabaseStatus] = useState("확인 중");
   useEffect(() => {
     const loadSupabaseData = async () => {
       try {
@@ -2070,12 +2096,15 @@ function App() {
         ]);
 
         setSupabaseStatus("연결 성공");
-        setPosts(cloudPosts);
+
+        if (cloudPosts.length > 0) {
+          setPosts(cloudPosts);
+        }
 
         if (cloudSettings) {
           setSettings({
             ...defaultSettings,
-            ...sanitizeSettings(cloudSettings),
+            ...cloudSettings,
             favoriteHeroOrders: {
               ...defaultSettings.favoriteHeroOrders,
               ...(cloudSettings.favoriteHeroOrders || {}),
@@ -2090,16 +2119,44 @@ function App() {
 
     loadSupabaseData();
   }, []);
+  const [activeTab, setActiveTab] = useState("home");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedBoardGroup, setSelectedBoardGroup] = useState("PVP");
+  const [selectedPostGroup, setSelectedPostGroup] = useState("PVP");
+  const [accessMode, setAccessMode] = useState(() => sessionStorage.getItem("sena_guide_access_mode") || "");
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem(SETTINGS_KEY);
+      return saved ? { ...defaultSettings, ...JSON.parse(saved), favoriteHeroOrders: { ...defaultSettings.favoriteHeroOrders, ...(JSON.parse(saved).favoriteHeroOrders || {}) } } : defaultSettings;
+    } catch {
+      return defaultSettings;
+    }
+  });
+  const [posts, setPosts] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : defaultPosts;
+    } catch {
+      return defaultPosts;
+    }
+  });
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [viewerImage, setViewerImage] = useState(null);
+  const [postFilter, setPostFilter] = useState("all");
+  const [postSearch, setPostSearch] = useState("");
+  const [heroSearch, setHeroSearch] = useState("");
+  const [form, setForm] = useState(initialForm);
+  const [editingPostId, setEditingPostId] = useState(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
   }, [posts]);
 
   useEffect(() => {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(sanitizeSettings(settings)));
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   }, [settings]);
 
-  const navItems = useMemo(() => (isRealAdmin ? [...baseNavItems, adminNavItem] : baseNavItems), [isRealAdmin]);
+  const navItems = useMemo(() => (accessMode === "admin" ? [...baseNavItems, adminNavItem] : baseNavItems), [accessMode]);
 
   const favoriteOrders = settings.favoriteHeroOrders || defaultSettings.favoriteHeroOrders;
 
@@ -2120,9 +2177,11 @@ function App() {
         post.skillOrder,
         ...(post.enemyDeck || []),
         ...(post.attackDeck || []),
+        ...(post.defenseDeck || []),
         ...(post.deck || []),
         post.enemyPet,
         post.attackPet,
+        post.defensePet,
         post.pet,
       ].join(" ");
 
@@ -2230,13 +2289,18 @@ function App() {
 
     if (isGuildWarType(form.type)) {
       if (form.enemyDeck.length !== 3) {
-        alert("길드전 공략은 상대 방덱 3명을 선택해야 함.");
+        alert("길드전 공격 공략은 상대 방덱 3명을 선택해야 함.");
         return;
       }
       if (form.attackDeck.length > 0 && form.attackDeck.length !== 3) {
         alert("추천 공격덱은 입력하려면 3명을 선택해야 함.");
         return;
       }
+    }
+
+    if (isGuildWarDefenseType(form.type) && form.defenseDeck.length !== 3) {
+      alert("길드전 방어덱은 방어 영웅 3명을 선택해야 함.");
+      return;
     }
 
     if (isFiveHeroLikeType(form.type) && form.deck.length !== 5) {
@@ -2287,7 +2351,7 @@ function App() {
 
   const startEditPost = (post) => {
     let password = post.password || "";
-    if (!isRealAdmin) {
+    if (accessMode !== "admin") {
       password = prompt("글 작성 시 입력한 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2304,9 +2368,12 @@ function App() {
       images: post.images || (post.image ? [{ id: "legacy-image", name: "기존 이미지", dataUrl: post.image }] : []),
       enemyDeck: post.enemyDeck || [],
       attackDeck: post.attackDeck || [],
+      defenseDeck: post.defenseDeck || [],
+      defensePet: post.defensePet || "",
       deck: post.deck || [],
       attackSkillSteps: post.attackSkillSteps || [],
       enemySkillSteps: post.enemySkillSteps || [],
+      defenseSkillSteps: post.defenseSkillSteps || [],
       formation: post.formation || "",
       backlineHero: post.backlineHero || "",
       backlineHeroes: post.backlineHeroes || (post.backlineHero ? [post.backlineHero] : []),
@@ -2318,7 +2385,7 @@ function App() {
   };
 
   const deletePost = async (post) => {
-    if (!isRealAdmin) {
+    if (accessMode !== "admin") {
       const password = prompt("삭제하려면 글 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2387,7 +2454,7 @@ function App() {
 
     if (!targetComment) return;
 
-    if (!isRealAdmin) {
+    if (accessMode !== "admin") {
       const password = prompt("댓글 삭제 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2515,7 +2582,7 @@ function App() {
       version: "sena-guide-v1",
       type: "full",
       exportedAt: new Date().toISOString(),
-      settings: sanitizeSettings(settings),
+      settings,
       posts,
     };
 
@@ -2548,7 +2615,7 @@ function App() {
       }
 
       const confirmed = confirm(
-        "백업을 불러오면 현재 화면과 Supabase에 백업 파일 기준으로 공략/댓글/설정이 업로드됨. 계속할까?"
+        "백업을 불러오면 현재 브라우저에 저장된 공략/댓글/설정이 백업 파일 기준으로 바뀜. 계속할까?"
       );
 
       if (!confirmed) {
@@ -2700,7 +2767,7 @@ function App() {
         <div>
           <p className="eyebrow">Write</p>
           <h2>{editingPostId ? "공략 수정" : "공략 작성"}</h2>
-          <p className="muted">게시판 종류에 따라 입력 양식이 달라집니다. 작성한 공략은 Supabase에 저장되어 다른 기기에서도 공유됩니다.</p>
+          <p className="muted">게시판 종류에 따라 입력 양식이 달라집니다. 지금은 로컬 테스트라 이 브라우저에만 저장됩니다.</p>
         </div>
         {editingPostId && <button type="button" className="ghost-button" onClick={cancelEditPost}>수정 취소</button>}
       </div>
@@ -2939,6 +3006,118 @@ function App() {
           </div>
         )}
 
+        {isGuildWarDefenseType(form.type) && (
+          <div className="form-card">
+            <h3>길드전 방어덱 배치</h3>
+            <div className="guildwar-write-flow guildwar-write-flow-v2">
+              <div className="guildwar-write-step defense-step defense-heroes-step">
+                <HeroSelector
+                  label="내 방어덱"
+                  selected={form.defenseDeck}
+                  max={3}
+                  onChange={(value) => updateForm("defenseDeck", value)}
+                  favoriteHeroes={favoriteOrders.guildWarDefense || []}
+                  favoriteLabel="자주 쓰는 방어덱 영웅"
+                />
+              </div>
+
+              <div className="guildwar-write-step defense-step defense-pet-step">
+                <PetSelect
+                  label="방어 펫"
+                  value={form.defensePet}
+                  onChange={(value) => updateForm("defensePet", value)}
+                />
+              </div>
+
+              <div className="guildwar-write-step defense-step defense-skill-step">
+                <SkillOrderBuilder
+                  title="방어덱 스킬 순서"
+                  heroes={form.defenseDeck}
+                  steps={form.defenseSkillSteps}
+                  onChange={(value) => updateForm("defenseSkillSteps", value)}
+                />
+              </div>
+            </div>
+
+            {form.defenseDeck.length === 3 && (
+              <div className="formation-edit-box">
+                <div className="form-grid-two">
+                  <label className="field-label">
+                    진형
+                    <select
+                      value={form.formation}
+                      onChange={(event) => {
+                        const nextFormation = event.target.value;
+                        const currentBacklines = normalizeBacklineHeroes(form.defenseDeck, form.backlineHeroes || [], form.backlineHero);
+                        const nextBacklines = nextFormation === "보호 진형" ? currentBacklines.slice(0, 1) : currentBacklines;
+
+                        updateForm("formation", nextFormation);
+                        updateForm("backlineHeroes", nextBacklines);
+                        updateForm("backlineHero", nextBacklines[0] || "");
+                      }}
+                    >
+                      <option value="">진형 선택</option>
+                      {formationOptions.map((name) => <option key={name} value={name}>{name}</option>)}
+                    </select>
+                  </label>
+                  <div className="field-label backline-picker-field">
+                    <span>후열 영웅</span>
+                    <div className="backline-picker-row">
+                      {form.defenseDeck.map((hero) => {
+                        const selectedBacklines = normalizeBacklineHeroes(form.defenseDeck, form.backlineHeroes || [], form.backlineHero);
+                        const isSelected = selectedBacklines.includes(hero);
+
+                        return (
+                          <button
+                            type="button"
+                            key={`defense-backline-pick-${hero}`}
+                            className={`backline-picker-button ${isSelected ? "selected" : ""}`}
+                            onClick={() => {
+                              const nextBacklines = toggleBacklineHero(selectedBacklines, hero, form.formation);
+                              updateForm("backlineHeroes", nextBacklines);
+                              updateForm("backlineHero", nextBacklines[0] || "");
+                            }}
+                          >
+                            <HeroIcon name={hero} size="xs" />
+                            <span>{isSelected ? "후열" : "전열"}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="muted small-text">
+                      보호 진형은 후열 1명만 선택되고, 나머지 진형은 여러 명 선택 가능.
+                    </p>
+                  </div>
+                </div>
+
+                <FormationBoard
+                  title="방어덱 미리보기"
+                  heroes={form.defenseDeck}
+                  pet={form.defensePet}
+                  formation={form.formation}
+                  backlineHero={form.backlineHero}
+                  backlineHeroes={form.backlineHeroes || []}
+                  steps={form.defenseSkillSteps}
+                />
+              </div>
+            )}
+
+            <div className="hero-settings-form-block">
+              <div className="form-block-title-row">
+                <div>
+                  <h4>영웅별 세팅</h4>
+                  <p className="muted small-text">선택 입력. 비워도 방어덱 등록은 가능함.</p>
+                </div>
+              </div>
+              <HeroSettingsEditor
+                heroes={form.defenseDeck}
+                settings={form.heroSettings}
+                onChange={(value) => updateForm("heroSettings", value)}
+              />
+            </div>
+          </div>
+        )}
+
         {isFiveHeroLikeType(form.type) && (
           <div className="form-card">
             <h3>{getBoardType(form.type).label} 정보</h3>
@@ -2959,8 +3138,7 @@ function App() {
               onChange={(value) => updateForm("deck", value)}
               favoriteHeroes={favoriteOrders[getFavoriteHeroOrderKey(form.type)] || favoriteOrders.pveCommon || []}
               favoriteLabel={`${getBoardType(form.type).label} 자주 쓰는 영웅`}
-            />
-            <PetSelect label="사용 펫" value={form.pet} onChange={(value) => updateForm("pet", value)} />
+            />            <PetSelect label="사용 펫" value={form.pet} onChange={(value) => updateForm("pet", value)} />
           </div>
         )}
 
@@ -2986,8 +3164,12 @@ function App() {
               <textarea value={form.caution} placeholder="예: 속공 지면 위험 / 특정 영웅 생존 시 불안정" onChange={(event) => updateForm("caution", event.target.value)} />
             </label>
             <label className="field-label wide-field">
-              필수 조건/세팅
-              <textarea value={form.requirement} placeholder="예: 6권 필요, 효저 100 권장" onChange={(event) => updateForm("requirement", event.target.value)} />
+              {isGuildWarDefenseType(form.type) ? "방어 의도 / 노리는 덱" : "필수 조건/세팅"}
+              <textarea
+                value={form.requirement}
+                placeholder={isGuildWarDefenseType(form.type) ? "예: 라오엘 소모 유도, 여포 선스킬 압박, 오공 생존 기반" : "예: 6권 필요, 효저 100 권장"}
+                onChange={(event) => updateForm("requirement", event.target.value)}
+              />
             </label>
             <label className="field-label wide-field">
               본문
@@ -3207,7 +3389,7 @@ function App() {
         </div>
         <Nav activeTab={activeTab} setActiveTab={setActiveTab} navItems={navItems} />
         <div className="mode-box">
-          <span>{isRealAdmin ? "관리자 모드" : "길드원 모드"}</span>
+          <span>{accessMode === "admin" ? "관리자 모드" : "길드원 모드"}</span>
           <button type="button" className="ghost-button tiny-button" onClick={logout}>나가기</button>
         </div>
       </aside>
@@ -3233,7 +3415,7 @@ function App() {
             </div>
             <Nav activeTab={activeTab} setActiveTab={setActiveTab} closeMenu={() => setMobileMenuOpen(false)} navItems={navItems} />
             <div className="mode-box mobile-mode-box">
-              <span>{isRealAdmin ? "관리자 모드" : "길드원 모드"}</span>
+              <span>{accessMode === "admin" ? "관리자 모드" : "길드원 모드"}</span>
               <button type="button" className="ghost-button tiny-button" onClick={logout}>나가기</button>
             </div>
             <button type="button" className="ghost-button" onClick={() => setMobileMenuOpen(false)}>닫기</button>
@@ -3248,7 +3430,7 @@ function App() {
         {activeTab === "mistCut" && <MistCutCalculator />}
         {activeTab === "heroes" && renderHeroes()}
         {activeTab === "meta" && renderMeta()}
-        {activeTab === "admin" && isRealAdmin && renderAdmin()}
+        {activeTab === "admin" && accessMode === "admin" && renderAdmin()}
       </main>
 
       {selectedPost && (
@@ -3259,7 +3441,7 @@ function App() {
           onDelete={deletePost}
           onAddComment={addCommentToPost}
           onDeleteComment={deleteCommentFromPost}
-          accessMode={isRealAdmin ? "admin" : accessMode}
+          accessMode={accessMode}
           onOpenImage={setViewerImage}
 
         />
