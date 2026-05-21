@@ -535,81 +535,6 @@ function getFavoriteHeroOrderKey(type) {
   return "pveCommon";
 }
 
-const defaultPosts = [
-  {
-    id: "sample-1",
-    type: "guildWar",
-    title: "라오엘(유) 상대로 로미아 사용 메모",
-    author: "관리자",
-    password: "admin",
-    createdAt: "2026-05-18",
-    difficulty: "보통",
-    speedBattle: "win",
-    enemyDeck: ["라드그리드", "손오공", "엘리시아"],
-    enemyPet: "유",
-    attackDeck: ["로지", "미스트", "아킬라"],
-    attackPet: "멜패로",
-    formation: "밸런스 진형",
-    backlineHero: "미스트",
-    heroSettings: {
-      "로지": { set: "추적자", weaponOptions: "치명타 확률 / 약점 공격 확률", armorOptions: "피해 감소 / 생명력", accessory: "권능 6", memo: "초반 생존 확인" },
-      "미스트": { set: "조율자", weaponOptions: "효과 적중 / 속공", armorOptions: "효과 저항 / 피해 감소", accessory: "불사 6", memo: "후열 추천" },
-      "아킬라": { set: "수호자", weaponOptions: "막기 / 방어력", armorOptions: "생명력 / 피해 감소", accessory: "세공 자유", memo: "마무리 안정성" },
-    },
-    attackSkillSteps: [
-      { hero: "미스트", skill: "2스" },
-      { hero: "미스트", skill: "1스" },
-      { hero: "아킬라", skill: "2스" },
-    ],
-    enemySkillSteps: [],
-    skillOrder: "미2 → 미1 → 아2",
-    caution: "속공을 지면 불안정. 엘리시아가 오래 살아남는 상황은 주의.",
-    content: "검증 중인 공략입니다. 상대 펫이 루인지 유인지에 따라 결과를 분리해서 보는 게 좋습니다.",
-    image: "",
-  },
-  {
-    id: "sample-2",
-    type: "guildWar",
-    title: "여쁘란 상대는 아직 정리 필요",
-    author: "관리자",
-    password: "admin",
-    createdAt: "2026-05-18",
-    difficulty: "어려움",
-    speedBattle: "unknown",
-    enemyDeck: ["여포", "브란즈&브란셀", "란드그리드"],
-    enemyPet: "이린",
-    attackDeck: [],
-    attackPet: "",
-    formation: "",
-    backlineHero: "",
-    backlineHeroes: [],
-    heroSettings: {},
-    attackSkillSteps: [],
-    enemySkillSteps: [],
-    skillOrder: "",
-    caution: "여포 선스킬과 속공 기준을 같이 봐야 함.",
-    content: "길드원 제보가 들어오면 검증 후 정리 예정.",
-    image: "",
-  },
-  {
-    id: "sample-3",
-    type: "fiveHero",
-    title: "5인 콘텐츠 작성 예시",
-    author: "관리자",
-    password: "admin",
-    createdAt: "2026-05-18",
-    contentName: "레이드/보스전",
-    deck: ["파이", "미스트", "레이첼", "세인", "비스킷"],
-    pet: "루",
-    formation: "보호 진형",
-    skillOrder: "레이첼 1스 → 미스트 2스 → 파이 2스",
-    requirement: "딜러 치확/치피 세팅 권장",
-    caution: "자동보다 수동 기준으로 먼저 검증 필요.",
-    content: "5인 콘텐츠는 이 양식으로 작성하면 됩니다.",
-    image: "",
-  },
-];
-
 const initialForm = {
   type: "guildWar",
   title: "",
@@ -2132,14 +2057,8 @@ function App() {
       return defaultSettings;
     }
   });
-  const [posts, setPosts] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : defaultPosts;
-    } catch {
-      return defaultPosts;
-    }
-  });
+  const [posts, setPosts] = useState([]);
+
   const [selectedPost, setSelectedPost] = useState(null);
   const [viewerImage, setViewerImage] = useState(null);
   const [postFilter, setPostFilter] = useState("all");
