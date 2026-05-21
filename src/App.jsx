@@ -55,6 +55,7 @@ const pets = ["루", "유", "이린", "카람", "멜패로", "리첼", "요랑",
 
 const baseNavItems = [
   { id: "home", label: "홈" },
+  { id: "notices", label: "공지사항" },
   { id: "posts", label: "공략 보기" },
   { id: "write", label: "공략 작성" },
   { id: "mistCut", label: "미스트 즉사컷" },
@@ -287,17 +288,10 @@ function SetPicker({ value, onChange }) {
 const boardTypes = {
   guildWar: {
     group: "PVP",
-    label: "길드전 공격",
-    short: "공격",
-    description: "상대 방어덱과 공격덱을 작성합니다.",
+    label: "길드전",
+    short: "3 vs 3",
+    description: "상대 방어덱 3명과 추천 공격덱 3명을 기준으로 작성합니다.",
     mode: "guildWar",
-  },
-  guildWarDefenseDeck: {
-    group: "PVP",
-    label: "길드전 방어덱",
-    short: "방어",
-    description: "길드전 방어덱을 작성합니다.",
-    mode: "guildWarDefense",
   },
   totalWar: {
     group: "PVP",
@@ -498,10 +492,6 @@ function isGuildWarType(type) {
   return getBoardType(type).mode === "guildWar";
 }
 
-function isGuildWarDefenseType(type) {
-  return getBoardType(type).mode === "guildWarDefense";
-}
-
 function isFiveHeroLikeType(type) {
   return getBoardType(type).mode === "fiveHero";
 }
@@ -534,6 +524,81 @@ function getFavoriteHeroOrderKey(type) {
   return "pveCommon";
 }
 
+const defaultPosts = [
+  {
+    id: "sample-1",
+    type: "guildWar",
+    title: "라오엘(유) 상대로 로미아 사용 메모",
+    author: "관리자",
+    password: "admin",
+    createdAt: "2026-05-18",
+    difficulty: "보통",
+    speedBattle: "win",
+    enemyDeck: ["라드그리드", "손오공", "엘리시아"],
+    enemyPet: "유",
+    attackDeck: ["로지", "미스트", "아킬라"],
+    attackPet: "멜패로",
+    formation: "밸런스 진형",
+    backlineHero: "미스트",
+    heroSettings: {
+      "로지": { set: "추적자", weaponOptions: "치명타 확률 / 약점 공격 확률", armorOptions: "피해 감소 / 생명력", accessory: "권능 6", memo: "초반 생존 확인" },
+      "미스트": { set: "조율자", weaponOptions: "효과 적중 / 속공", armorOptions: "효과 저항 / 피해 감소", accessory: "불사 6", memo: "후열 추천" },
+      "아킬라": { set: "수호자", weaponOptions: "막기 / 방어력", armorOptions: "생명력 / 피해 감소", accessory: "세공 자유", memo: "마무리 안정성" },
+    },
+    attackSkillSteps: [
+      { hero: "미스트", skill: "2스" },
+      { hero: "미스트", skill: "1스" },
+      { hero: "아킬라", skill: "2스" },
+    ],
+    enemySkillSteps: [],
+    skillOrder: "미2 → 미1 → 아2",
+    caution: "속공을 지면 불안정. 엘리시아가 오래 살아남는 상황은 주의.",
+    content: "검증 중인 공략입니다. 상대 펫이 루인지 유인지에 따라 결과를 분리해서 보는 게 좋습니다.",
+    image: "",
+  },
+  {
+    id: "sample-2",
+    type: "guildWar",
+    title: "여쁘란 상대는 아직 정리 필요",
+    author: "관리자",
+    password: "admin",
+    createdAt: "2026-05-18",
+    difficulty: "어려움",
+    speedBattle: "unknown",
+    enemyDeck: ["여포", "브란즈&브란셀", "란드그리드"],
+    enemyPet: "이린",
+    attackDeck: [],
+    attackPet: "",
+    formation: "",
+    backlineHero: "",
+    backlineHeroes: [],
+    heroSettings: {},
+    attackSkillSteps: [],
+    enemySkillSteps: [],
+    skillOrder: "",
+    caution: "여포 선스킬과 속공 기준을 같이 봐야 함.",
+    content: "길드원 제보가 들어오면 검증 후 정리 예정.",
+    image: "",
+  },
+  {
+    id: "sample-3",
+    type: "fiveHero",
+    title: "5인 콘텐츠 작성 예시",
+    author: "관리자",
+    password: "admin",
+    createdAt: "2026-05-18",
+    contentName: "레이드/보스전",
+    deck: ["파이", "미스트", "레이첼", "세인", "비스킷"],
+    pet: "루",
+    formation: "보호 진형",
+    skillOrder: "레이첼 1스 → 미스트 2스 → 파이 2스",
+    requirement: "딜러 치확/치피 세팅 권장",
+    caution: "자동보다 수동 기준으로 먼저 검증 필요.",
+    content: "5인 콘텐츠는 이 양식으로 작성하면 됩니다.",
+    image: "",
+  },
+];
+
 const initialForm = {
   type: "guildWar",
   title: "",
@@ -545,9 +610,6 @@ const initialForm = {
   enemyPet: "",
   attackDeck: [],
   attackPet: "",
-  defenseDeck: [],
-  defensePet: "",
-  defenseSkillSteps: [],
   formation: "",
   backlineHero: "",
   backlineHeroes: [],
@@ -562,6 +624,12 @@ const initialForm = {
   caution: "",
   content: "",
   image: "",
+  images: [],
+};
+
+const initialNoticeForm = {
+  title: "",
+  content: "",
   images: [],
 };
 
@@ -653,6 +721,7 @@ function compressImageFile(file, options = {}) {
   });
 }
 
+
 function dataUrlToBlob(dataUrl) {
   const [header, base64] = dataUrl.split(",");
   const mimeMatch = header.match(/data:(.*?);base64/);
@@ -676,10 +745,11 @@ function safeFileName(fileName = "image.jpg") {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}.${extension || "jpg"}`;
 }
 
-async function uploadImageToStorage(image) {
+async function uploadImageToStorage(image, folder = "posts") {
   const bucketName = "guide-images";
+  const safeFolder = folder || "posts";
   const blob = dataUrlToBlob(image.dataUrl);
-  const filePath = `posts/${todayText()}/${safeFileName(image.name)}`;
+  const filePath = `${safeFolder}/${todayText()}/${safeFileName(image.name)}`;
 
   const { error } = await supabase.storage
     .from(bucketName)
@@ -790,6 +860,46 @@ async function savePostsToSupabase(posts) {
 
 async function deletePostFromSupabase(postId) {
   const { error } = await supabase.from("posts").delete().eq("id", postId);
+
+  if (error) throw error;
+}
+
+async function fetchNoticesFromSupabase() {
+  const { data, error } = await supabase
+    .from("notices")
+    .select("id, title, content, images, created_at, updated_at")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return (data || []).map((row) => ({
+    id: row.id,
+    title: row.title || "",
+    content: row.content || "",
+    images: Array.isArray(row.images) ? row.images : [],
+    createdAt: row.created_at ? row.created_at.slice(0, 10) : todayText(),
+    updatedAt: row.updated_at ? row.updated_at.slice(0, 10) : undefined,
+  }));
+}
+
+async function saveNoticeToSupabase(notice) {
+  const now = new Date().toISOString();
+
+  const payload = {
+    id: notice.id,
+    title: notice.title,
+    content: notice.content || "",
+    images: notice.images || [],
+    updated_at: now,
+  };
+
+  const { error } = await supabase.from("notices").upsert(payload);
+
+  if (error) throw error;
+}
+
+async function deleteNoticeFromSupabase(noticeId) {
+  const { error } = await supabase.from("notices").delete().eq("id", noticeId);
 
   if (error) throw error;
 }
@@ -1249,16 +1359,6 @@ function PostCard({ post, onClick }) {
         </div>
       )}
 
-      {isGuildWarDefenseType(post.type) && (
-        <div className="mini-matchup single">
-          <div>
-            <span className="mini-label">방어덱 배치</span>
-            <HeroRow heroes={post.defenseDeck} size="xs" />
-            <PetChip name={post.defensePet} />
-          </div>
-        </div>
-      )}
-
       {isFiveHeroLikeType(post.type) && (
         <div className="mini-matchup single">
           <div>
@@ -1418,49 +1518,6 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
           </div>
         )}
 
-        {isGuildWarDefenseType(post.type) && (
-          <div className="guild-war-board-detail">
-            <div className="matchup-board-row">
-              <FormationBoard
-                title="방어덱 배치"
-                heroes={post.defenseDeck || []}
-                pet={post.defensePet}
-                formation={post.formation}
-                backlineHero={post.backlineHero}
-                backlineHeroes={post.backlineHeroes || []}
-                steps={post.defenseSkillSteps || []}
-              />
-              <section className="detail-card central-strategy-card">
-                <h3>방어덱 운영 메모</h3>
-                <div className="strategy-chip-row">
-                  {post.formation && <span>{post.formation}</span>}
-                  {post.difficulty && <span>{post.difficulty}</span>}
-                </div>
-
-                {post.requirement && (
-                  <div className="strategy-note-block">
-                    <strong>방어 의도 / 노리는 덱</strong>
-                    <p>{post.requirement}</p>
-                  </div>
-                )}
-
-                <div className="strategy-note-block">
-                  <strong>주의사항</strong>
-                  <p>{post.caution || "주의사항 미기록"}</p>
-                </div>
-
-                {post.skillOrder && (
-                  <div className="strategy-note-block">
-                    <strong>스킬 순서 추가 메모</strong>
-                    <p>{post.skillOrder}</p>
-                  </div>
-                )}
-              </section>
-            </div>
-            <HeroSettingsTable heroes={post.defenseDeck || []} settings={post.heroSettings || {}} />
-          </div>
-        )}
-
         {isFiveHeroLikeType(post.type) && (
           <div className="detail-grid five-detail">
             <section className="detail-card">
@@ -1490,7 +1547,8 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
               ? post.images
               : [{ id: "legacy-detail-image", dataUrl: post.image }]
             ).map((image, index) => {
-              const imageSrc = image.url || image.dataUrl || image;
+              const imageSrc = image.dataUrl || image;
+
               return (
                 <button
                   type="button"
@@ -1572,6 +1630,62 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
           {accessMode === "admin" && (
             <p className="muted small-text">관리자는 댓글 비밀번호 없이 삭제할 수 있음.</p>
           )}
+        </section>
+      </article>
+    </div>
+  );
+}
+
+
+function NoticeDetail({ notice, isRealAdmin, onClose, onEdit, onDelete, onOpenImage }) {
+  if (!notice) return null;
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <article className="post-detail notice-detail" onClick={(event) => event.stopPropagation()}>
+        <div className="detail-top">
+          <div>
+            <p className="eyebrow">Notice</p>
+            <h2>{notice.title}</h2>
+            <p className="muted">관리자 · {notice.createdAt}</p>
+          </div>
+
+          <div className="detail-actions">
+            {isRealAdmin && (
+              <>
+                <button type="button" className="ghost-button" onClick={() => onEdit(notice)}>수정</button>
+                <button type="button" className="delete-button" onClick={() => onDelete(notice)}>삭제</button>
+              </>
+            )}
+            <button type="button" className="ghost-button" onClick={onClose}>닫기</button>
+          </div>
+        </div>
+
+        {(notice.images || []).length > 0 && (
+          <div className="detail-image-gallery">
+            {(notice.images || []).map((image, index) => {
+              const imageSrc = image.url || image.dataUrl || image;
+              return (
+                <button
+                  type="button"
+                  key={image.id || `notice-detail-image-${index}`}
+                  className="detail-image-button"
+                  onClick={() => onOpenImage(imageSrc)}
+                >
+                  <img
+                    className="detail-image"
+                    src={imageSrc}
+                    alt={`공지 이미지 ${index + 1}`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        <section className="detail-card content-card">
+          <h3>공지 내용</h3>
+          <p>{notice.content || "내용 없음"}</p>
         </section>
       </article>
     </div>
@@ -2031,6 +2145,10 @@ function App() {
       if (data.session) {
         setAccessMode("admin");
         sessionStorage.setItem("sena_guide_access_mode", "admin");
+      } else {
+        if (sessionStorage.getItem("sena_guide_access_mode") === "admin") {
+          sessionStorage.removeItem("sena_guide_access_mode");
+        }
       }
 
       setAuthLoading(false);
@@ -2062,16 +2180,16 @@ function App() {
   useEffect(() => {
     const loadSupabaseData = async () => {
       try {
-        const [cloudPosts, cloudSettings] = await Promise.all([
+        const [cloudPosts, cloudSettings, cloudNotices] = await Promise.all([
           fetchPostsFromSupabase(),
           fetchSettingsFromSupabase(),
+          fetchNoticesFromSupabase(),
         ]);
 
         setSupabaseStatus("연결 성공");
 
-        if (cloudPosts.length > 0) {
-          setPosts(cloudPosts);
-        }
+        setPosts(cloudPosts);
+        setNotices(cloudNotices);
 
         if (cloudSettings) {
           setSettings({
@@ -2095,7 +2213,10 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedBoardGroup, setSelectedBoardGroup] = useState("PVP");
   const [selectedPostGroup, setSelectedPostGroup] = useState("PVP");
-  const [accessMode, setAccessMode] = useState(() => sessionStorage.getItem("sena_guide_access_mode") || "");
+  const [accessMode, setAccessMode] = useState(() => {
+    const savedMode = sessionStorage.getItem("sena_guide_access_mode");
+    return savedMode === "member" ? "member" : "";
+  });
   const [settings, setSettings] = useState(() => {
     try {
       const saved = localStorage.getItem(SETTINGS_KEY);
@@ -2104,8 +2225,14 @@ function App() {
       return defaultSettings;
     }
   });
-  const [posts, setPosts] = useState([]);
-
+  const [posts, setPosts] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : defaultPosts;
+    } catch {
+      return defaultPosts;
+    }
+  });
   const [selectedPost, setSelectedPost] = useState(null);
   const [viewerImage, setViewerImage] = useState(null);
   const [postFilter, setPostFilter] = useState("all");
@@ -2113,6 +2240,13 @@ function App() {
   const [heroSearch, setHeroSearch] = useState("");
   const [form, setForm] = useState(initialForm);
   const [editingPostId, setEditingPostId] = useState(null);
+  const [notices, setNotices] = useState([]);
+  const [selectedNotice, setSelectedNotice] = useState(null);
+  const [noticeForm, setNoticeForm] = useState(initialNoticeForm);
+  const [editingNoticeId, setEditingNoticeId] = useState(null);
+  const [showNoticeForm, setShowNoticeForm] = useState(false);
+
+  const isRealAdmin = accessMode === "admin" && Boolean(authSession);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
@@ -2122,7 +2256,7 @@ function App() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   }, [settings]);
 
-  const navItems = useMemo(() => (accessMode === "admin" ? [...baseNavItems, adminNavItem] : baseNavItems), [accessMode]);
+  const navItems = useMemo(() => (isRealAdmin ? [...baseNavItems, adminNavItem] : baseNavItems), [isRealAdmin]);
 
   const favoriteOrders = settings.favoriteHeroOrders || defaultSettings.favoriteHeroOrders;
 
@@ -2143,11 +2277,9 @@ function App() {
         post.skillOrder,
         ...(post.enemyDeck || []),
         ...(post.attackDeck || []),
-        ...(post.defenseDeck || []),
         ...(post.deck || []),
         post.enemyPet,
         post.attackPet,
-        post.defensePet,
         post.pet,
       ].join(" ");
 
@@ -2208,14 +2340,10 @@ function App() {
         )
       );
 
-      const uploadedImages = await Promise.all(
-        compressedImages.map((image) => uploadImageToStorage(image))
-      );
-
-      const nextImages = [...existingImages, ...uploadedImages];
+      const nextImages = [...existingImages, ...compressedImages];
 
       updateForm("images", nextImages);
-      updateForm("image", nextImages[0]?.url || nextImages[0]?.dataUrl || "");
+      updateForm("image", nextImages[0]?.dataUrl || "");
     } catch (error) {
       console.error(error);
       alert("이미지 압축 중 오류가 발생함.");
@@ -2259,18 +2387,13 @@ function App() {
 
     if (isGuildWarType(form.type)) {
       if (form.enemyDeck.length !== 3) {
-        alert("길드전 공격 공략은 상대 방덱 3명을 선택해야 함.");
+        alert("길드전 공략은 상대 방덱 3명을 선택해야 함.");
         return;
       }
       if (form.attackDeck.length > 0 && form.attackDeck.length !== 3) {
         alert("추천 공격덱은 입력하려면 3명을 선택해야 함.");
         return;
       }
-    }
-
-    if (isGuildWarDefenseType(form.type) && form.defenseDeck.length !== 3) {
-      alert("길드전 방어덱은 방어 영웅 3명을 선택해야 함.");
-      return;
     }
 
     if (isFiveHeroLikeType(form.type) && form.deck.length !== 5) {
@@ -2281,13 +2404,14 @@ function App() {
     const normalizedImages = form.images?.length
       ? form.images
       : form.image
-        ? [{ id: "legacy-image", name: "기존 이미지", url: form.image }]
+        ? [{ id: "legacy-image", name: "기존 이미지", dataUrl: form.image }]
         : [];
 
     const normalizedPost = {
       ...form,
       images: normalizedImages,
-      image: normalizedImages[0]?.url || normalizedImages[0]?.dataUrl || "", backlineHero: (form.backlineHeroes || [])[0] || form.backlineHero || "",
+      image: normalizedImages[0]?.dataUrl || "",
+      backlineHero: (form.backlineHeroes || [])[0] || form.backlineHero || "",
       comments: form.comments || [],
       id: editingPostId || `post-${Date.now()}`,
       createdAt: editingPostId ? posts.find((post) => post.id === editingPostId)?.createdAt || todayText() : todayText(),
@@ -2320,7 +2444,7 @@ function App() {
 
   const startEditPost = (post) => {
     let password = post.password || "";
-    if (accessMode !== "admin") {
+    if (!isRealAdmin) {
       password = prompt("글 작성 시 입력한 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2334,14 +2458,12 @@ function App() {
       ...initialForm,
       ...post,
       password,
-      images: post.images || (post.image ? [{ id: "legacy-image", name: "기존 이미지", url: post.image }] : []), enemyDeck: post.enemyDeck || [],
+      images: post.images || (post.image ? [{ id: "legacy-image", name: "기존 이미지", dataUrl: post.image }] : []),
+      enemyDeck: post.enemyDeck || [],
       attackDeck: post.attackDeck || [],
-      defenseDeck: post.defenseDeck || [],
-      defensePet: post.defensePet || "",
       deck: post.deck || [],
       attackSkillSteps: post.attackSkillSteps || [],
       enemySkillSteps: post.enemySkillSteps || [],
-      defenseSkillSteps: post.defenseSkillSteps || [],
       formation: post.formation || "",
       backlineHero: post.backlineHero || "",
       backlineHeroes: post.backlineHeroes || (post.backlineHero ? [post.backlineHero] : []),
@@ -2353,7 +2475,7 @@ function App() {
   };
 
   const deletePost = async (post) => {
-    if (accessMode !== "admin") {
+    if (!isRealAdmin) {
       const password = prompt("삭제하려면 글 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2422,7 +2544,7 @@ function App() {
 
     if (!targetComment) return;
 
-    if (accessMode !== "admin") {
+    if (!isRealAdmin) {
       const password = prompt("댓글 삭제 비밀번호를 입력해줘.");
       if (password === null) return;
 
@@ -2552,6 +2674,7 @@ function App() {
       exportedAt: new Date().toISOString(),
       settings,
       posts,
+      notices,
     };
 
     downloadJsonFile(`sena-guide-full-backup-${todayText()}.json`, backup);
@@ -2638,13 +2761,147 @@ function App() {
     }
   };
 
+
+  const updateNoticeForm = (field, value) => {
+    setNoticeForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const resetNoticeEditor = () => {
+    setNoticeForm(initialNoticeForm);
+    setEditingNoticeId(null);
+    setShowNoticeForm(false);
+  };
+
+  const handleNoticeImageUpload = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    const existingImages = noticeForm.images || [];
+
+    if (existingImages.length + files.length > 6) {
+      alert("공지 이미지는 최대 6장까지만 첨부 가능.");
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const compressedImages = await Promise.all(
+        files.map((file) =>
+          compressImageFile(file, {
+            maxWidth: 1200,
+            maxHeight: 1200,
+            quality: 0.75,
+            type: "image/jpeg",
+          })
+        )
+      );
+
+      const uploadedImages = await Promise.all(
+        compressedImages.map((image) => uploadImageToStorage(image, "notices"))
+      );
+
+      updateNoticeForm("images", [...existingImages, ...uploadedImages]);
+    } catch (error) {
+      console.error("공지 이미지 업로드 오류:", error);
+      alert("공지 이미지를 업로드하지 못함.");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const removeNoticeImage = (imageId) => {
+    const nextImages = (noticeForm.images || []).filter((image) => image.id !== imageId);
+    updateNoticeForm("images", nextImages);
+  };
+
+  const handleNoticeSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!isRealAdmin) {
+      alert("공지 작성은 관리자만 가능함.");
+      return;
+    }
+
+    if (!noticeForm.title.trim()) {
+      alert("공지 제목을 입력해줘.");
+      return;
+    }
+
+    const existingNotice = editingNoticeId
+      ? notices.find((notice) => notice.id === editingNoticeId)
+      : null;
+
+    const normalizedNotice = {
+      id: editingNoticeId || `notice-${Date.now()}`,
+      title: noticeForm.title.trim(),
+      content: noticeForm.content.trim(),
+      images: noticeForm.images || [],
+      createdAt: existingNotice?.createdAt || todayText(),
+      updatedAt: editingNoticeId ? todayText() : undefined,
+    };
+
+    try {
+      await saveNoticeToSupabase(normalizedNotice);
+    } catch (error) {
+      console.error("공지 저장 오류:", error);
+      alert("Supabase에 공지를 저장하지 못함.");
+      return;
+    }
+
+    if (editingNoticeId) {
+      setNotices((prev) => prev.map((notice) => (notice.id === editingNoticeId ? normalizedNotice : notice)));
+      setSelectedNotice(normalizedNotice);
+    } else {
+      setNotices((prev) => [normalizedNotice, ...prev]);
+      setSelectedNotice(normalizedNotice);
+    }
+
+    resetNoticeEditor();
+  };
+
+  const startEditNotice = (notice) => {
+    if (!isRealAdmin) return;
+
+    setNoticeForm({
+      title: notice.title || "",
+      content: notice.content || "",
+      images: notice.images || [],
+    });
+    setEditingNoticeId(notice.id);
+    setShowNoticeForm(true);
+    setSelectedNotice(null);
+    setActiveTab("notices");
+  };
+
+  const deleteNotice = async (notice) => {
+    if (!isRealAdmin) return;
+
+    const confirmed = confirm("이 공지사항을 삭제할까?");
+    if (!confirmed) return;
+
+    try {
+      await deleteNoticeFromSupabase(notice.id);
+    } catch (error) {
+      console.error("공지 삭제 오류:", error);
+      alert("Supabase에서 공지를 삭제하지 못함.");
+      return;
+    }
+
+    setNotices((prev) => prev.filter((item) => item.id !== notice.id));
+    setSelectedNotice(null);
+
+    if (editingNoticeId === notice.id) {
+      resetNoticeEditor();
+    }
+  };
+
   const renderHome = () => (
     <>
       <section className="hero-section">
         <p className="eyebrow">Seven Knights Re:Birth</p>
-        <h1>바다 길드 공략 공유</h1>
+        <h1>길드전 공략과 길드원 제보를 한곳에</h1>
         <p>
-          바다 화이팅!!
+          길드전 3 vs 3 공략부터 5인 콘텐츠 공략까지, 작성 양식에 맞춰 올리면 보기 좋은 공략 카드로 정리됩니다.
         </p>
         <div className="hero-actions">
           <button type="button" className="primary-button" onClick={() => setActiveTab("write")}>공략 작성하기</button>
@@ -2671,6 +2928,123 @@ function App() {
         </div>
       </section>
     </>
+  );
+
+
+  const renderNotices = () => (
+    <section className="panel-section">
+      <div className="section-title-row">
+        <div>
+          <p className="eyebrow">Notice</p>
+          <h2>공지사항</h2>
+          <p className="muted">길드원이 꼭 확인해야 하는 내용을 모아둔 공간입니다.</p>
+        </div>
+
+        {isRealAdmin && (
+          <button
+            type="button"
+            className="primary-button small-primary"
+            onClick={() => {
+              setShowNoticeForm((prev) => !prev);
+              if (!showNoticeForm) {
+                setNoticeForm(initialNoticeForm);
+                setEditingNoticeId(null);
+              }
+            }}
+          >
+            {showNoticeForm ? "작성 닫기" : "공지 작성"}
+          </button>
+        )}
+      </div>
+
+      {isRealAdmin && showNoticeForm && (
+        <form className="form-card write-form" onSubmit={handleNoticeSubmit}>
+          <h3>{editingNoticeId ? "공지 수정" : "공지 작성"}</h3>
+
+          <label className="field-label">
+            제목
+            <input
+              value={noticeForm.title}
+              placeholder="예: 길드전 공략 작성 규칙"
+              onChange={(event) => updateNoticeForm("title", event.target.value)}
+            />
+          </label>
+
+          <label className="field-label">
+            내용
+            <textarea
+              value={noticeForm.content}
+              placeholder="공지 내용을 입력해줘."
+              onChange={(event) => updateNoticeForm("content", event.target.value)}
+            />
+          </label>
+
+          <div className="field-label">
+            <span>이미지 첨부</span>
+            <p className="muted small-text">공지 이미지는 최대 6장까지 가능. 업로드 시 자동으로 압축됨.</p>
+            <input type="file" accept="image/*" multiple onChange={handleNoticeImageUpload} />
+          </div>
+
+          {(noticeForm.images || []).length > 0 && (
+            <div className="image-preview-grid">
+              {(noticeForm.images || []).map((image, index) => (
+                <div className="image-preview-item" key={image.id || `notice-preview-${index}`}>
+                  <img src={image.url || image.dataUrl || image} alt={`공지 미리보기 ${index + 1}`} />
+                  <div className="image-preview-meta">
+                    <span>{image.name || `이미지 ${index + 1}`}</span>
+                    <button
+                      type="button"
+                      className="delete-button tiny-button"
+                      onClick={() => removeNoticeImage(image.id)}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="backup-button-row">
+            <button type="submit" className="primary-button">
+              {editingNoticeId ? "공지 수정 저장" : "공지 등록"}
+            </button>
+            <button type="button" className="ghost-button" onClick={resetNoticeEditor}>
+              취소
+            </button>
+          </div>
+        </form>
+      )}
+
+      <div className="post-grid">
+        {notices.length === 0 ? (
+          <div className="empty-box">등록된 공지사항이 없음.</div>
+        ) : (
+          notices.map((notice) => (
+            <button
+              type="button"
+              key={notice.id}
+              className="post-card"
+              onClick={() => setSelectedNotice(notice)}
+            >
+              <div className="post-card-head">
+                <div>
+                  <p className="eyebrow">공지사항</p>
+                  <h3>{notice.title}</h3>
+                </div>
+                <span className="tag">공지</span>
+              </div>
+              <p className="post-preview">{notice.content || "내용 없음"}</p>
+              <div className="post-meta">
+                <span>관리자</span>
+                <span>{notice.createdAt}</span>
+                {(notice.images || []).length > 0 && <span>이미지 {(notice.images || []).length}장</span>}
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    </section>
   );
 
   const renderPosts = () => (
@@ -2735,7 +3109,7 @@ function App() {
         <div>
           <p className="eyebrow">Write</p>
           <h2>{editingPostId ? "공략 수정" : "공략 작성"}</h2>
-          <p className="muted">본인의 공략을 작성해주세요.</p>
+          <p className="muted">게시판 종류에 따라 입력 양식이 달라집니다. 지금은 로컬 테스트라 이 브라우저에만 저장됩니다.</p>
         </div>
         {editingPostId && <button type="button" className="ghost-button" onClick={cancelEditPost}>수정 취소</button>}
       </div>
@@ -2797,7 +3171,7 @@ function App() {
           <div className="form-card form-grid-two">
             <label className="field-label">
               제목
-              <input value={form.title} placeholder="예: 즉사로 라오엘 공격" onChange={(event) => updateForm("title", event.target.value)} />
+              <input value={form.title} placeholder="예: 라오엘(유) 상대로 로미아 후기" onChange={(event) => updateForm("title", event.target.value)} />
             </label>
             <label className="field-label">
               난이도/평가
@@ -2814,7 +3188,7 @@ function App() {
             </label>
             <label className="field-label">
               비밀번호
-              <input type="password" value={form.password} placeholder="숫자 4자리" onChange={(event) => updateForm("password", event.target.value)} />
+              <input type="password" value={form.password} placeholder="나중에 수정/삭제용" onChange={(event) => updateForm("password", event.target.value)} />
             </label>
           </div>
         )}
@@ -2974,118 +3348,6 @@ function App() {
           </div>
         )}
 
-        {isGuildWarDefenseType(form.type) && (
-          <div className="form-card">
-            <h3>길드전 방어덱 배치</h3>
-            <div className="guildwar-write-flow guildwar-write-flow-v2">
-              <div className="guildwar-write-step defense-step defense-heroes-step">
-                <HeroSelector
-                  label="내 방어덱"
-                  selected={form.defenseDeck}
-                  max={3}
-                  onChange={(value) => updateForm("defenseDeck", value)}
-                  favoriteHeroes={favoriteOrders.guildWarDefense || []}
-                  favoriteLabel="자주 쓰는 방어덱 영웅"
-                />
-              </div>
-
-              <div className="guildwar-write-step defense-step defense-pet-step">
-                <PetSelect
-                  label="방어 펫"
-                  value={form.defensePet}
-                  onChange={(value) => updateForm("defensePet", value)}
-                />
-              </div>
-
-              <div className="guildwar-write-step defense-step defense-skill-step">
-                <SkillOrderBuilder
-                  title="방어덱 스킬 순서"
-                  heroes={form.defenseDeck}
-                  steps={form.defenseSkillSteps}
-                  onChange={(value) => updateForm("defenseSkillSteps", value)}
-                />
-              </div>
-            </div>
-
-            {form.defenseDeck.length === 3 && (
-              <div className="formation-edit-box">
-                <div className="form-grid-two">
-                  <label className="field-label">
-                    진형
-                    <select
-                      value={form.formation}
-                      onChange={(event) => {
-                        const nextFormation = event.target.value;
-                        const currentBacklines = normalizeBacklineHeroes(form.defenseDeck, form.backlineHeroes || [], form.backlineHero);
-                        const nextBacklines = nextFormation === "보호 진형" ? currentBacklines.slice(0, 1) : currentBacklines;
-
-                        updateForm("formation", nextFormation);
-                        updateForm("backlineHeroes", nextBacklines);
-                        updateForm("backlineHero", nextBacklines[0] || "");
-                      }}
-                    >
-                      <option value="">진형 선택</option>
-                      {formationOptions.map((name) => <option key={name} value={name}>{name}</option>)}
-                    </select>
-                  </label>
-                  <div className="field-label backline-picker-field">
-                    <span>후열 영웅</span>
-                    <div className="backline-picker-row">
-                      {form.defenseDeck.map((hero) => {
-                        const selectedBacklines = normalizeBacklineHeroes(form.defenseDeck, form.backlineHeroes || [], form.backlineHero);
-                        const isSelected = selectedBacklines.includes(hero);
-
-                        return (
-                          <button
-                            type="button"
-                            key={`defense-backline-pick-${hero}`}
-                            className={`backline-picker-button ${isSelected ? "selected" : ""}`}
-                            onClick={() => {
-                              const nextBacklines = toggleBacklineHero(selectedBacklines, hero, form.formation);
-                              updateForm("backlineHeroes", nextBacklines);
-                              updateForm("backlineHero", nextBacklines[0] || "");
-                            }}
-                          >
-                            <HeroIcon name={hero} size="xs" />
-                            <span>{isSelected ? "후열" : "전열"}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <p className="muted small-text">
-                      보호 진형은 후열 1명만 선택되고, 나머지 진형은 여러 명 선택 가능.
-                    </p>
-                  </div>
-                </div>
-
-                <FormationBoard
-                  title="방어덱 미리보기"
-                  heroes={form.defenseDeck}
-                  pet={form.defensePet}
-                  formation={form.formation}
-                  backlineHero={form.backlineHero}
-                  backlineHeroes={form.backlineHeroes || []}
-                  steps={form.defenseSkillSteps}
-                />
-              </div>
-            )}
-
-            <div className="hero-settings-form-block">
-              <div className="form-block-title-row">
-                <div>
-                  <h4>영웅별 세팅</h4>
-                  <p className="muted small-text">선택 입력. 비워도 방어덱 등록은 가능함.</p>
-                </div>
-              </div>
-              <HeroSettingsEditor
-                heroes={form.defenseDeck}
-                settings={form.heroSettings}
-                onChange={(value) => updateForm("heroSettings", value)}
-              />
-            </div>
-          </div>
-        )}
-
         {isFiveHeroLikeType(form.type) && (
           <div className="form-card">
             <h3>{getBoardType(form.type).label} 정보</h3>
@@ -3132,12 +3394,8 @@ function App() {
               <textarea value={form.caution} placeholder="예: 속공 지면 위험 / 특정 영웅 생존 시 불안정" onChange={(event) => updateForm("caution", event.target.value)} />
             </label>
             <label className="field-label wide-field">
-              {isGuildWarDefenseType(form.type) ? "방어 의도 / 노리는 덱" : "필수 조건/세팅"}
-              <textarea
-                value={form.requirement}
-                placeholder={isGuildWarDefenseType(form.type) ? "예: 라오엘 소모 유도, 여포 선스킬 압박, 오공 생존 기반" : "예: 6권 필요, 효저 100 권장"}
-                onChange={(event) => updateForm("requirement", event.target.value)}
-              />
+              필수 조건/세팅
+              <textarea value={form.requirement} placeholder="예: 6권 필요, 효저 100 권장" onChange={(event) => updateForm("requirement", event.target.value)} />
             </label>
             <label className="field-label wide-field">
               본문
@@ -3163,7 +3421,8 @@ function App() {
                 : [{ id: "legacy-image", name: "기존 이미지", dataUrl: form.image }]
               ).map((image, index) => (
                 <div className="image-preview-item" key={image.id || `preview-${index}`}>
-                  <img src={image.url || image.dataUrl || image} alt={`첨부 미리보기 ${index + 1}`} />
+                  <img src={image.dataUrl || image} alt={`첨부 미리보기 ${index + 1}`} />
+
                   <div className="image-preview-meta">
                     <span>{image.name || `이미지 ${index + 1}`}</span>
                     <button
@@ -3329,7 +3588,7 @@ function App() {
   }
 
   return (
-    <div className={`app-shell ${accessMode === "admin" ? "admin-mode" : "member-mode"}`}>
+    <div className={`app-shell ${isRealAdmin ? "admin-mode" : "member-mode"}`}>
       <aside className="desktop-sidebar">
         <div className="brand-box">
           <div className="brand-mark">S</div>
@@ -3340,7 +3599,7 @@ function App() {
         </div>
         <Nav activeTab={activeTab} setActiveTab={setActiveTab} navItems={navItems} />
         <div className="mode-box">
-          <span>{accessMode === "admin" ? "관리자 모드" : "길드원 모드"}</span>
+          <span>{isRealAdmin ? "관리자 모드" : "길드원 모드"}</span>
           <button type="button" className="ghost-button tiny-button" onClick={logout}>나가기</button>
         </div>
       </aside>
@@ -3366,7 +3625,7 @@ function App() {
             </div>
             <Nav activeTab={activeTab} setActiveTab={setActiveTab} closeMenu={() => setMobileMenuOpen(false)} navItems={navItems} />
             <div className="mode-box mobile-mode-box">
-              <span>{accessMode === "admin" ? "관리자 모드" : "길드원 모드"}</span>
+              <span>{isRealAdmin ? "관리자 모드" : "길드원 모드"}</span>
               <button type="button" className="ghost-button tiny-button" onClick={logout}>나가기</button>
             </div>
             <button type="button" className="ghost-button" onClick={() => setMobileMenuOpen(false)}>닫기</button>
@@ -3376,12 +3635,24 @@ function App() {
 
       <main className="main-content">
         {activeTab === "home" && renderHome()}
+        {activeTab === "notices" && renderNotices()}
         {activeTab === "posts" && renderPosts()}
         {activeTab === "write" && renderWrite()}
         {activeTab === "mistCut" && <MistCutCalculator />}
         {activeTab === "heroes" && renderHeroes()}
-        {activeTab === "admin" && accessMode === "admin" && renderAdmin()}
+        {activeTab === "admin" && isRealAdmin && renderAdmin()}
       </main>
+
+      {selectedNotice && (
+        <NoticeDetail
+          notice={selectedNotice}
+          isRealAdmin={isRealAdmin}
+          onClose={() => setSelectedNotice(null)}
+          onEdit={startEditNotice}
+          onDelete={deleteNotice}
+          onOpenImage={setViewerImage}
+        />
+      )}
 
       {selectedPost && (
         <PostDetail
@@ -3391,7 +3662,7 @@ function App() {
           onDelete={deletePost}
           onAddComment={addCommentToPost}
           onDeleteComment={deleteCommentFromPost}
-          accessMode={accessMode}
+          accessMode={isRealAdmin ? "admin" : accessMode}
           onOpenImage={setViewerImage}
 
         />
