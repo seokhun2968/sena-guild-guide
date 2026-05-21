@@ -290,14 +290,14 @@ const boardTypes = {
     group: "PVP",
     label: "길드전 공격",
     short: "공격",
-    description: "상대 방어덱 3명과 추천 공격덱 3명을 기준으로 작성합니다.",
+    description: "상대 방어덱과 공격덱을 작성합니다.",
     mode: "guildWar",
   },
   guildWarDefenseDeck: {
     group: "PVP",
     label: "길드전 방어덱",
     short: "방어",
-    description: "내 방어덱 3명, 펫, 진형, 스킬 순서, 세팅을 공유합니다.",
+    description: "길드전 방어덱을 작성합니다.",
     mode: "guildWarDefense",
   },
   totalWar: {
@@ -2643,9 +2643,9 @@ function App() {
     <>
       <section className="hero-section">
         <p className="eyebrow">Seven Knights Re:Birth</p>
-        <h1>길드전 공략과 길드원 제보를 한곳에</h1>
+        <h1>바다 길드 공략 공유</h1>
         <p>
-          길드전 3 vs 3 공략부터 5인 콘텐츠 공략까지, 작성 양식에 맞춰 올리면 보기 좋은 공략 카드로 정리됩니다.
+          바다 화이팅!!
         </p>
         <div className="hero-actions">
           <button type="button" className="primary-button" onClick={() => setActiveTab("write")}>공략 작성하기</button>
@@ -2736,7 +2736,7 @@ function App() {
         <div>
           <p className="eyebrow">Write</p>
           <h2>{editingPostId ? "공략 수정" : "공략 작성"}</h2>
-          <p className="muted">게시판 종류에 따라 입력 양식이 달라집니다. 지금은 로컬 테스트라 이 브라우저에만 저장됩니다.</p>
+          <p className="muted">본인의 공략을 작성해주세요.</p>
         </div>
         {editingPostId && <button type="button" className="ghost-button" onClick={cancelEditPost}>수정 취소</button>}
       </div>
@@ -2798,7 +2798,7 @@ function App() {
           <div className="form-card form-grid-two">
             <label className="field-label">
               제목
-              <input value={form.title} placeholder="예: 라오엘(유) 상대로 로미아 후기" onChange={(event) => updateForm("title", event.target.value)} />
+              <input value={form.title} placeholder="예: 즉사로 라오엘 공격" onChange={(event) => updateForm("title", event.target.value)} />
             </label>
             <label className="field-label">
               난이도/평가
@@ -2815,7 +2815,7 @@ function App() {
             </label>
             <label className="field-label">
               비밀번호
-              <input type="password" value={form.password} placeholder="나중에 수정/삭제용" onChange={(event) => updateForm("password", event.target.value)} />
+              <input type="password" value={form.password} placeholder="숫자 4자리" onChange={(event) => updateForm("password", event.target.value)} />
             </label>
           </div>
         )}
