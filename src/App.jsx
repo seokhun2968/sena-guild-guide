@@ -74,6 +74,7 @@ const skillOptions = ["1스", "2스", "각성"];
 
 const equipmentSets = ["선봉장", "추적자", "성기사", "수문장", "수호자", "암살자", "복수자", "주술사", "조율자"];
 const formationOptions = ["기본 진형", "밸런스 진형", "공격 진형", "보호 진형"];
+const recommendLevelOptions = ["상", "중", "하"];
 const weaponMainOptions = ["약공", "치확", "치피", "모공퍼", "방퍼", "생퍼", "효적", "깡생", "깡방", "깡공"];
 const armorMainOptions = ["받피감", "막기", "모공퍼", "효저", "깡모공", "방퍼", "생퍼", "깡방", "깡생"];
 const accessoryGradeOptions = ["4", "5", "6"];
@@ -175,6 +176,17 @@ function calculateMistKillCut({
 function formatNumber(value) {
   if (!Number.isFinite(value)) return "-";
   return Math.round(value).toLocaleString();
+}
+
+function normalizeDifficulty(value) {
+  if (value === "쉬움") return "상";
+  if (value === "보통") return "중";
+  if (value === "어려움") return "하";
+  if (value === "실험중") return "하";
+
+  if (recommendLevelOptions.includes(value)) return value;
+
+  return "중";
 }
 
 function emptyHeroSetting() {
@@ -540,7 +552,7 @@ const initialForm = {
   title: "",
   author: "",
   password: "",
-  difficulty: "보통",
+  difficulty: "중",
   speedBattle: "unknown",
   enemyDeck: [],
   enemyPet: "",
@@ -745,7 +757,11 @@ async function fetchPostsFromSupabase() {
 
   return (data || [])
     .map((row) => row.data)
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((post) => ({
+      ...post,
+      difficulty: normalizeDifficulty(post.difficulty),
+    }));
 }
 
 function sanitizeSettings(settings) {
@@ -1298,7 +1314,7 @@ function PostCard({ post, onClick }) {
         </div>
       )}
 
-{isGuildWarDefenseType(post.type) && (
+      {isGuildWarDefenseType(post.type) && (
         <div className="mini-matchup single">
           <div>
             <span className="mini-label">방어덱 배치</span>
@@ -1467,7 +1483,7 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
           </div>
         )}
 
-{isGuildWarDefenseType(post.type) && (
+        {isGuildWarDefenseType(post.type) && (
           <div className="guild-war-board-detail">
             <div className="matchup-board-row">
               <FormationBoard
@@ -2405,6 +2421,7 @@ function App() {
 
     const normalizedPost = {
       ...form,
+      difficulty: normalizeDifficulty(form.difficulty),
       images: normalizedImages,
       image: normalizedImages[0]?.url || normalizedImages[0]?.dataUrl || "",
       backlineHero: (form.backlineHeroes || [])[0] || form.backlineHero || "",
@@ -3173,12 +3190,13 @@ function App() {
               <input value={form.title} placeholder="예: 즉사로 라오엘 상대" onChange={(event) => updateForm("title", event.target.value)} />
             </label>
             <label className="field-label">
-              난이도/평가
+              추천 정도
               <select value={form.difficulty} onChange={(event) => updateForm("difficulty", event.target.value)}>
-                <option value="쉬움">쉬움</option>
-                <option value="보통">보통</option>
-                <option value="어려움">어려움</option>
-                <option value="실험중">실험중</option>
+                {recommendLevelOptions.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
               </select>
             </label>
             <label className="field-label">
@@ -3347,7 +3365,7 @@ function App() {
           </div>
         )}
 
-{isGuildWarDefenseType(form.type) && (
+        {isGuildWarDefenseType(form.type) && (
           <div className="form-card">
             <h3>길드전 방어덱 배치</h3>
             <div className="guildwar-write-flow guildwar-write-flow-v2">
