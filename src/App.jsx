@@ -1295,7 +1295,7 @@ function PostCard({ post, onClick }) {
       {isGuildWarType(post.type) && (
         <div className="post-status-row">
           <span>{speedBattleLabels[post.speedBattle || "unknown"]}</span>
-          <span>{post.difficulty || "평가 없음"}</span>
+          <span>추천 정도 : {post.difficulty || "중"}</span>
         </div>
       )}
 
@@ -1447,8 +1447,7 @@ function PostDetail({ post, onClose, onEdit, onDelete, onAddComment, onDeleteCom
                 <h3>전략 메모</h3>
                 <div className="strategy-chip-row">
                   <span>{speedBattleLabels[post.speedBattle || "unknown"]}</span>
-                  <span>{post.difficulty || "평가 없음"}</span>
-                </div>
+                  <span>추천 정도 : {post.difficulty || "중"}</span>                </div>
 
                 <div className="strategy-note-block">
                   <strong>주의사항</strong>
