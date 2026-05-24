@@ -4,6 +4,7 @@ import "./App.css";
 
 const STORAGE_KEY = "sena_guide_posts_v1";
 const SETTINGS_KEY = "sena_guide_site_settings_v1";
+const MAX_IMAGE_COUNT = 20;
 
 const defaultSettings = {
   guildCode: "1234",
@@ -2324,8 +2325,8 @@ function App() {
 
     const existingImages = currentImages.length > 0 ? currentImages : legacyImage;
 
-    if (existingImages.length + files.length > 6) {
-      alert("이미지는 공략글당 최대 6장까지만 첨부 가능.");
+    if (existingImages.length + files.length > MAX_IMAGE_COUNT) {
+      alert(`이미지는 공략글당 최대 ${MAX_IMAGE_COUNT}장까지만 첨부 가능.`);
       event.target.value = "";
       return;
     }
@@ -2793,8 +2794,8 @@ function App() {
 
     const existingImages = noticeForm.images || [];
 
-    if (existingImages.length + files.length > 6) {
-      alert("공지 이미지는 최대 6장까지만 첨부 가능.");
+    if (existingImages.length + files.length > MAX_IMAGE_COUNT) {
+      alert(`공지 이미지는 최대 ${MAX_IMAGE_COUNT}장까지만 첨부 가능.`);
       event.target.value = "";
       return;
     }
@@ -2996,8 +2997,7 @@ function App() {
 
           <div className="field-label">
             <span>이미지 첨부</span>
-            <p className="muted small-text">공지 이미지는 최대 6장까지 가능. 업로드 시 자동으로 압축됨.</p>
-            <input type="file" accept="image/*" multiple onChange={handleNoticeImageUpload} />
+            <p className="muted small-text">공지 이미지는 최대 20장까지 가능. 업로드 시 자동으로 압축됨.</p>            <input type="file" accept="image/*" multiple onChange={handleNoticeImageUpload} />
           </div>
 
           {(noticeForm.images || []).length > 0 && (
