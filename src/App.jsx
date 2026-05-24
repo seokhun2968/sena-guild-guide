@@ -3540,8 +3540,8 @@ function App() {
           <h3>이미지 첨부</h3>
           <p className="muted small-text">
             {isFeedbackType(form.type)
-              ? "오류 화면이나 불편한 부분을 캡처해서 첨부할 수 있음. 이미지는 최대 6장까지 가능."
-              : "이미지는 최대 6장까지 첨부 가능. 업로드 시 자동으로 압축됨."}
+              ? "오류 화면이나 불편한 부분을 캡처해서 첨부할 수 있음. 이미지는 최대 20장까지 가능."
+              : "이미지는 최대 20장까지 첨부 가능. 업로드 시 자동으로 압축됨."}
           </p>
 
           <input type="file" accept="image/*" multiple onChange={handleImageUpload} />
