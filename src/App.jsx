@@ -65,6 +65,13 @@ const baseNavItems = [
 
 const adminNavItem = { id: "admin", label: "관리자 설정" };
 
+const defenseReviewNavItem = { id: "defenseReview", label: "방덱 점검" };
+
+const defenseReviewDeckTypes = ["라오엘", "여포덱", "마덱", "기타"];
+const defenseReviewStatusOptions = ["검토 필요", "수정 권장", "괜찮음", "수정 완료"];
+const defenseReviewIssueTagOptions = ["장신구 확인", "후열 확인", "속공 확인", "효저 확인", "조합 이상", "사진 확인 필요"];
+const defenseReviewScoreOptions = [5, 4, 3, 2, 1];
+
 const speedBattleLabels = {
   win: "속공 승",
   lose: "속공 패",
@@ -585,6 +592,20 @@ const initialNoticeForm = {
   images: [],
 };
 
+const initialDefenseReviewForm = {
+  memberName: "",
+  deckType: "라오엘",
+  deckName: "",
+  heroes: [],
+  petName: "",
+  accessories: {},
+  images: [],
+  score: 3,
+  status: "검토 필요",
+  issueTags: [],
+  memo: "",
+};
+
 function normalizeSearchText(value) {
   return String(value || "").trim().replace(/\s+/g, "").toLowerCase();
 }
@@ -724,6 +745,42 @@ async function uploadImageToStorage(image, folder = "posts") {
   };
 }
 
+function extractStoragePathFromUrl(url = "") {
+  const marker = "/storage/v1/object/public/guide-images/";
+  const urlText = String(url || "");
+  const markerIndex = urlText.indexOf(marker);
+
+  if (markerIndex === -1) return "";
+
+  return decodeURIComponent(urlText.slice(markerIndex + marker.length));
+}
+
+async function deleteImagesFromStorage(images = []) {
+  const bucketName = "guide-images";
+
+  const paths = [...new Set(
+    (images || [])
+      .map((image) => {
+        if (!image) return "";
+
+        if (typeof image === "string") {
+          return extractStoragePathFromUrl(image);
+        }
+
+        return image.path || extractStoragePathFromUrl(image.url || "");
+      })
+      .filter(Boolean)
+  )];
+
+  if (paths.length === 0) return;
+
+  const { error } = await supabase.storage
+    .from(bucketName)
+    .remove(paths);
+
+  if (error) throw error;
+}
+
 function readFileAsText(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -856,6 +913,92 @@ async function saveNoticeToSupabase(notice) {
 
 async function deleteNoticeFromSupabase(noticeId) {
   const { error } = await supabase.from("notices").delete().eq("id", noticeId);
+
+  if (error) throw error;
+}
+
+function emptyDefenseAccessory() {
+  return {
+    grade: "",
+    type: "",
+    reforge: "",
+  };
+}
+
+function normalizeDefenseAccessory(accessory = {}) {
+  return {
+    ...emptyDefenseAccessory(),
+    ...accessory,
+    grade: accessory.grade || "",
+    type: accessory.type || "",
+    reforge: accessory.reforge || "",
+  };
+}
+
+function defenseAccessorySummary(accessory = {}) {
+  const normalized = normalizeDefenseAccessory(accessory);
+  const grade = normalized.grade ? `${normalized.grade}성` : "";
+  const type = normalized.type || "";
+  const base = [grade, type].filter(Boolean).join(" ") || "-";
+  const reforge = normalized.reforge ? ` / 세공: ${normalized.reforge}` : "";
+
+  return `${base}${reforge}`;
+}
+
+function normalizeDefenseReviewRow(row) {
+  return {
+    id: row.id,
+    memberName: row.member_name || "",
+    deckType: row.deck_type || "기타",
+    deckName: row.deck_name || "",
+    heroes: Array.isArray(row.heroes) ? row.heroes : [],
+    petName: row.pet_name || "",
+    accessories: row.accessories || {},
+    images: Array.isArray(row.images) ? row.images : [],
+    score: Number(row.score || 3),
+    status: row.status || "검토 필요",
+    issueTags: Array.isArray(row.issue_tags) ? row.issue_tags : [],
+    memo: row.memo || "",
+    createdAt: row.created_at ? row.created_at.slice(0, 10) : todayText(),
+    updatedAt: row.updated_at ? row.updated_at.slice(0, 10) : undefined,
+  };
+}
+
+async function fetchDefenseReviewsFromSupabase() {
+  const { data, error } = await supabase
+    .from("defense_reviews")
+    .select("id, member_name, deck_type, deck_name, heroes, pet_name, accessories, images, score, status, issue_tags, memo, created_at, updated_at")
+    .order("updated_at", { ascending: false });
+
+  if (error) throw error;
+
+  return (data || []).map(normalizeDefenseReviewRow);
+}
+
+async function saveDefenseReviewToSupabase(review) {
+  const payload = {
+    id: review.id,
+    member_name: review.memberName || "",
+    deck_type: review.deckType || "기타",
+    deck_name: review.deckName || "",
+    heroes: review.heroes || [],
+    pet_name: review.petName || "",
+    accessories: review.accessories || {},
+    images: review.images || [],
+    score: Number(review.score || 3),
+    status: review.status || "검토 필요",
+    issue_tags: review.issueTags || [],
+    memo: review.memo || "",
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabase.from("defense_reviews").upsert(payload);
+
+  if (error) throw error;
+}
+
+async function deleteDefenseReviewFromSupabase(reviewId) {
+  const { error } = await supabase.from("defense_reviews").delete().eq("id", reviewId);
 
   if (error) throw error;
 }
@@ -1700,6 +1843,89 @@ function NoticeDetail({ notice, isRealAdmin, onClose, onEdit, onDelete, onOpenIm
   );
 }
 
+function DefenseReviewDetail({ review, onClose, onEdit, onDelete, onOpenImage }) {
+  if (!review) return null;
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <article className="post-detail defense-review-detail" onClick={(event) => event.stopPropagation()}>
+        <div className="detail-top">
+          <div>
+            <p className="eyebrow">Defense Review</p>
+            <h2>{review.memberName || "이름 없음"} · {review.deckType}</h2>
+            <p className="muted">
+              {review.deckName || "방덱 이름 없음"} · {review.score}점 · {review.status}
+            </p>
+          </div>
+
+          <div className="detail-actions">
+            <button type="button" className="ghost-button" onClick={() => onEdit(review)}>수정</button>
+            <button type="button" className="delete-button" onClick={() => onDelete(review)}>삭제</button>
+            <button type="button" className="ghost-button" onClick={onClose}>닫기</button>
+          </div>
+        </div>
+
+        <section className="detail-card">
+          <h3>영웅 구성</h3>
+          <HeroRow heroes={review.heroes || []} size="lg" />
+          <PetChip name={review.petName} />
+        </section>
+
+        <section className="detail-card content-card">
+          <h3>영웅별 장신구</h3>
+          <div className="defense-accessory-view-grid">
+            {(review.heroes || []).map((hero) => (
+              <div className="defense-accessory-view-item" key={`detail-accessory-${hero}`}>
+                <HeroIcon name={hero} size="xs" />
+                <span>{defenseAccessorySummary(review.accessories?.[hero])}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {(review.issueTags || []).length > 0 && (
+          <section className="detail-card content-card">
+            <h3>체크 태그</h3>
+            <div className="defense-review-tag-row">
+              {(review.issueTags || []).map((tag) => (
+                <span key={`detail-tag-${tag}`}>{tag}</span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {(review.images || []).length > 0 && (
+          <div className="detail-image-gallery">
+            {(review.images || []).map((image, index) => {
+              const imageSrc = image.url || image.dataUrl || image;
+
+              return (
+                <button
+                  type="button"
+                  key={image.id || `defense-review-image-${index}`}
+                  className="detail-image-button"
+                  onClick={() => onOpenImage(imageSrc)}
+                >
+                  <img
+                    className="detail-image"
+                    src={imageSrc}
+                    alt={`방덱 점검 이미지 ${index + 1}`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        <section className="detail-card content-card">
+          <h3>운영진 메모</h3>
+          <p>{review.memo || "메모 없음"}</p>
+        </section>
+      </article>
+    </div>
+  );
+}
+
 function HeroSelector({ label, selected, max, onChange, favoriteHeroes = [], favoriteLabel = "자주 쓰는 영웅" }) {
   const [keyword, setKeyword] = useState("");
   const normalized = normalizeSearchText(keyword);
@@ -2188,16 +2414,17 @@ function App() {
   useEffect(() => {
     const loadSupabaseData = async () => {
       try {
-        const [cloudPosts, cloudSettings, cloudNotices] = await Promise.all([
+        const [cloudPosts, cloudSettings, cloudNotices, cloudDefenseReviews] = await Promise.all([
           fetchPostsFromSupabase(),
           fetchSettingsFromSupabase(),
           fetchNoticesFromSupabase(),
+          fetchDefenseReviewsFromSupabase(),
         ]);
-
         setSupabaseStatus("연결 성공");
 
         setPosts(cloudPosts);
         setNotices(cloudNotices);
+        setDefenseReviews(cloudDefenseReviews);
 
         if (cloudSettings) {
           setSettings({
@@ -2246,6 +2473,15 @@ function App() {
   const [noticeForm, setNoticeForm] = useState(initialNoticeForm);
   const [editingNoticeId, setEditingNoticeId] = useState(null);
   const [showNoticeForm, setShowNoticeForm] = useState(false);
+  const [defenseReviews, setDefenseReviews] = useState([]);
+  const [selectedDefenseReview, setSelectedDefenseReview] = useState(null);
+  const [defenseReviewForm, setDefenseReviewForm] = useState(initialDefenseReviewForm);
+  const [editingDefenseReviewId, setEditingDefenseReviewId] = useState(null);
+  const [showDefenseReviewForm, setShowDefenseReviewForm] = useState(false);
+  const [defenseReviewDeckFilter, setDefenseReviewDeckFilter] = useState("전체");
+  const [defenseReviewStatusFilter, setDefenseReviewStatusFilter] = useState("전체");
+  const [defenseReviewSearch, setDefenseReviewSearch] = useState("");
+
 
   const isRealAdmin = accessMode === "admin" && Boolean(authSession);
 
@@ -2257,7 +2493,10 @@ function App() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   }, [settings]);
 
-  const navItems = useMemo(() => (isRealAdmin ? [...baseNavItems, adminNavItem] : baseNavItems), [isRealAdmin]);
+  const navItems = useMemo(
+    () => (isRealAdmin ? [...baseNavItems, defenseReviewNavItem, adminNavItem] : baseNavItems),
+    [isRealAdmin]
+  );
 
   const favoriteOrders = settings.favoriteHeroOrders || defaultSettings.favoriteHeroOrders;
 
@@ -2295,6 +2534,35 @@ function App() {
     if (!keyword) return allHeroes;
     return allHeroes.filter((hero) => getHeroSearchText(hero).includes(keyword));
   }, [heroSearch]);
+
+  const filteredDefenseReviews = useMemo(() => {
+    const keyword = normalizeSearchText(defenseReviewSearch);
+
+    return [...defenseReviews]
+      .filter((review) => {
+        if (defenseReviewDeckFilter !== "전체" && review.deckType !== defenseReviewDeckFilter) return false;
+        if (defenseReviewStatusFilter !== "전체" && review.status !== defenseReviewStatusFilter) return false;
+
+        if (!keyword) return true;
+
+        const searchPool = [
+          review.memberName,
+          review.deckType,
+          review.deckName,
+          review.petName,
+          review.memo,
+          review.status,
+          ...(review.heroes || []),
+          ...(review.issueTags || []),
+        ].join(" ");
+
+        return normalizeSearchText(searchPool).includes(keyword);
+      })
+      .sort((a, b) => {
+        if (Number(b.score) !== Number(a.score)) return Number(b.score) - Number(a.score);
+        return String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || ""));
+      });
+  }, [defenseReviews, defenseReviewDeckFilter, defenseReviewStatusFilter, defenseReviewSearch]);
 
   const stats = useMemo(() => ({
     total: posts.length,
@@ -2505,10 +2773,17 @@ function App() {
     if (!confirmed) return;
 
     try {
+      const postImages = post.images?.length
+        ? post.images
+        : post.image
+          ? [{ url: post.image }]
+          : [];
+
+      await deleteImagesFromStorage(postImages);
       await deletePostFromSupabase(post.id);
     } catch (error) {
       console.error("Supabase 삭제 오류:", error);
-      alert("Supabase에서 공략을 삭제하지 못함.");
+      alert("Supabase에서 공략 또는 이미지를 삭제하지 못함.");
       return;
     }
 
@@ -2896,10 +3171,11 @@ function App() {
     if (!confirmed) return;
 
     try {
+      await deleteImagesFromStorage(notice.images || []);
       await deleteNoticeFromSupabase(notice.id);
     } catch (error) {
       console.error("공지 삭제 오류:", error);
-      alert("Supabase에서 공지를 삭제하지 못함.");
+      alert("Supabase에서 공지 또는 이미지를 삭제하지 못함.");
       return;
     }
 
@@ -2908,6 +3184,188 @@ function App() {
 
     if (editingNoticeId === notice.id) {
       resetNoticeEditor();
+    }
+  };
+
+  const updateDefenseReviewForm = (field, value) => {
+    setDefenseReviewForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateDefenseReviewAccessory = (hero, field, value) => {
+    setDefenseReviewForm((prev) => ({
+      ...prev,
+      accessories: {
+        ...(prev.accessories || {}),
+        [hero]: {
+          ...normalizeDefenseAccessory(prev.accessories?.[hero]),
+          [field]: value,
+        },
+      },
+    }));
+  };
+
+  const toggleDefenseReviewIssueTag = (tag) => {
+    setDefenseReviewForm((prev) => {
+      const currentTags = prev.issueTags || [];
+      const nextTags = currentTags.includes(tag)
+        ? currentTags.filter((item) => item !== tag)
+        : [...currentTags, tag];
+
+      return {
+        ...prev,
+        issueTags: nextTags,
+      };
+    });
+  };
+
+  const resetDefenseReviewEditor = () => {
+    setDefenseReviewForm(initialDefenseReviewForm);
+    setEditingDefenseReviewId(null);
+    setShowDefenseReviewForm(false);
+  };
+
+  const handleDefenseReviewImageUpload = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    const existingImages = defenseReviewForm.images || [];
+
+    if (existingImages.length + files.length > MAX_IMAGE_COUNT) {
+      alert(`방덱 점검 이미지는 최대 ${MAX_IMAGE_COUNT}장까지만 첨부 가능.`);
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const compressedImages = await Promise.all(
+        files.map((file) =>
+          compressImageFile(file, {
+            maxWidth: 1600,
+            maxHeight: 1600,
+            quality: 0.78,
+            type: "image/jpeg",
+          })
+        )
+      );
+
+      const uploadedImages = await Promise.all(
+        compressedImages.map((image) => uploadImageToStorage(image, "defense-reviews"))
+      );
+
+      updateDefenseReviewForm("images", [...existingImages, ...uploadedImages]);
+    } catch (error) {
+      console.error("방덱 점검 이미지 업로드 오류:", error);
+      alert("방덱 점검 이미지를 업로드하지 못함.");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const removeDefenseReviewImage = (imageId) => {
+    const nextImages = (defenseReviewForm.images || []).filter((image) => image.id !== imageId);
+    updateDefenseReviewForm("images", nextImages);
+  };
+
+  const handleDefenseReviewSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!isRealAdmin) {
+      alert("방덱 점검은 관리자만 가능함.");
+      return;
+    }
+
+    if (!defenseReviewForm.memberName.trim()) {
+      alert("길드원 닉네임을 입력해줘.");
+      return;
+    }
+
+    if ((defenseReviewForm.heroes || []).length !== 3) {
+      alert("방어덱 영웅 3명을 선택해줘.");
+      return;
+    }
+
+    const existingReview = editingDefenseReviewId
+      ? defenseReviews.find((review) => review.id === editingDefenseReviewId)
+      : null;
+
+    const normalizedReview = {
+      ...defenseReviewForm,
+      id: editingDefenseReviewId || `defense-review-${Date.now()}`,
+      memberName: defenseReviewForm.memberName.trim(),
+      deckName: defenseReviewForm.deckName.trim(),
+      heroes: defenseReviewForm.heroes || [],
+      petName: defenseReviewForm.petName || "",
+      accessories: defenseReviewForm.accessories || {},
+      images: defenseReviewForm.images || [],
+      score: Number(defenseReviewForm.score || 3),
+      status: defenseReviewForm.status || "검토 필요",
+      issueTags: defenseReviewForm.issueTags || [],
+      memo: defenseReviewForm.memo.trim(),
+      createdAt: existingReview?.createdAt || todayText(),
+      updatedAt: editingDefenseReviewId ? todayText() : undefined,
+    };
+
+    try {
+      await saveDefenseReviewToSupabase(normalizedReview);
+    } catch (error) {
+      console.error("방덱 점검 저장 오류:", error);
+      alert("Supabase에 방덱 점검을 저장하지 못함.");
+      return;
+    }
+
+    if (editingDefenseReviewId) {
+      setDefenseReviews((prev) => prev.map((review) => (review.id === editingDefenseReviewId ? normalizedReview : review)));
+      setSelectedDefenseReview(normalizedReview);
+    } else {
+      setDefenseReviews((prev) => [normalizedReview, ...prev]);
+      setSelectedDefenseReview(normalizedReview);
+    }
+
+    resetDefenseReviewEditor();
+  };
+
+  const startEditDefenseReview = (review) => {
+    if (!isRealAdmin) return;
+
+    setDefenseReviewForm({
+      memberName: review.memberName || "",
+      deckType: review.deckType || "라오엘",
+      deckName: review.deckName || "",
+      heroes: review.heroes || [],
+      petName: review.petName || "",
+      accessories: review.accessories || {},
+      images: review.images || [],
+      score: Number(review.score || 3),
+      status: review.status || "검토 필요",
+      issueTags: review.issueTags || [],
+      memo: review.memo || "",
+    });
+    setEditingDefenseReviewId(review.id);
+    setShowDefenseReviewForm(true);
+    setSelectedDefenseReview(null);
+    setActiveTab("defenseReview");
+  };
+
+  const deleteDefenseReview = async (review) => {
+    if (!isRealAdmin) return;
+
+    const confirmed = confirm("이 방덱 점검 기록을 삭제할까?");
+    if (!confirmed) return;
+
+    try {
+      await deleteImagesFromStorage(review.images || []);
+      await deleteDefenseReviewFromSupabase(review.id);
+    } catch (error) {
+      console.error("방덱 점검 삭제 오류:", error);
+      alert("Supabase에서 방덱 점검 기록 또는 이미지를 삭제하지 못함.");
+      return;
+    }
+
+    setDefenseReviews((prev) => prev.filter((item) => item.id !== review.id));
+    setSelectedDefenseReview(null);
+
+    if (editingDefenseReviewId === review.id) {
+      resetDefenseReviewEditor();
     }
   };
 
@@ -3593,6 +4051,301 @@ function App() {
     </section>
   );
 
+  const renderDefenseReview = () => (
+    <section className="panel-section defense-review-panel">
+      <div className="section-title-row">
+        <div>
+          <p className="eyebrow">Admin Review</p>
+          <h2>방덱 점검</h2>
+          <p className="muted">길드원별 방어덱 캡쳐와 장신구를 정리해서 덱 유형별로 비교합니다.</p>
+        </div>
+
+        <button
+          type="button"
+          className="primary-button small-primary"
+          onClick={() => {
+            setShowDefenseReviewForm((prev) => !prev);
+            if (!showDefenseReviewForm) {
+              setDefenseReviewForm(initialDefenseReviewForm);
+              setEditingDefenseReviewId(null);
+            }
+          }}
+        >
+          {showDefenseReviewForm ? "작성 닫기" : "방덱 등록"}
+        </button>
+      </div>
+
+      {showDefenseReviewForm && (
+        <form className="form-card write-form defense-review-form" onSubmit={handleDefenseReviewSubmit}>
+          <h3>{editingDefenseReviewId ? "방덱 점검 수정" : "방덱 점검 등록"}</h3>
+
+          <div className="form-grid-two">
+            <label className="field-label">
+              길드원 닉네임
+              <input
+                value={defenseReviewForm.memberName}
+                placeholder="예: 나은꽁"
+                onChange={(event) => updateDefenseReviewForm("memberName", event.target.value)}
+              />
+            </label>
+
+            <label className="field-label">
+              방덱 유형
+              <select
+                value={defenseReviewForm.deckType}
+                onChange={(event) => updateDefenseReviewForm("deckType", event.target.value)}
+              >
+                {defenseReviewDeckTypes.map((type) => (
+                  <option key={`defense-type-${type}`} value={type}>{type}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="field-label">
+              방덱 이름
+              <input
+                value={defenseReviewForm.deckName}
+                placeholder="예: 나은꽁 라오엘"
+                onChange={(event) => updateDefenseReviewForm("deckName", event.target.value)}
+              />
+            </label>
+
+            <label className="field-label">
+              강함 점수
+              <select
+                value={defenseReviewForm.score}
+                onChange={(event) => updateDefenseReviewForm("score", Number(event.target.value))}
+              >
+                {defenseReviewScoreOptions.map((score) => (
+                  <option key={`defense-score-${score}`} value={score}>{score}점</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="field-label">
+              검토 상태
+              <select
+                value={defenseReviewForm.status}
+                onChange={(event) => updateDefenseReviewForm("status", event.target.value)}
+              >
+                {defenseReviewStatusOptions.map((status) => (
+                  <option key={`defense-status-${status}`} value={status}>{status}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <HeroSelector
+            label="방어덱 영웅"
+            selected={defenseReviewForm.heroes}
+            max={3}
+            onChange={(value) => updateDefenseReviewForm("heroes", value)}
+            favoriteHeroes={favoriteOrders.guildWarDefense || []}
+            favoriteLabel="자주 쓰는 방어덱 영웅"
+          />
+
+          <PetSelect
+            label="방어덱 펫"
+            value={defenseReviewForm.petName}
+            onChange={(value) => updateDefenseReviewForm("petName", value)}
+          />
+
+          {defenseReviewForm.heroes.length > 0 && (
+            <div className="defense-accessory-editor">
+              <h4>영웅별 장신구</h4>
+
+              <div className="defense-accessory-edit-grid">
+                {defenseReviewForm.heroes.map((hero) => {
+                  const accessory = normalizeDefenseAccessory(defenseReviewForm.accessories?.[hero]);
+
+                  return (
+                    <section className="defense-accessory-edit-card" key={`defense-accessory-${hero}`}>
+                      <div className="defense-accessory-hero">
+                        <HeroIcon name={hero} size="xs" />
+                        <strong>{shortHeroName(hero)}</strong>
+                      </div>
+
+                      <label className="field-label">
+                        등급
+                        <select
+                          value={accessory.grade}
+                          onChange={(event) => updateDefenseReviewAccessory(hero, "grade", event.target.value)}
+                        >
+                          <option value="">선택 안함</option>
+                          {accessoryGradeOptions.map((grade) => (
+                            <option key={`${hero}-defense-grade-${grade}`} value={grade}>{grade}</option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <label className="field-label">
+                        종류
+                        <select
+                          value={accessory.type}
+                          onChange={(event) => updateDefenseReviewAccessory(hero, "type", event.target.value)}
+                        >
+                          <option value="">선택 안함</option>
+                          {accessoryTypeOptions.map((type) => (
+                            <option key={`${hero}-defense-type-${type}`} value={type}>{type}</option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <label className="field-label">
+                        세공
+                        <input
+                          value={accessory.reforge}
+                          placeholder="예: 속공, 효저"
+                          onChange={(event) => updateDefenseReviewAccessory(hero, "reforge", event.target.value)}
+                        />
+                      </label>
+                    </section>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="defense-review-tag-box">
+            <h4>체크 태그</h4>
+            <div className="defense-review-tag-row">
+              {defenseReviewIssueTagOptions.map((tag) => (
+                <button
+                  type="button"
+                  key={`issue-tag-${tag}`}
+                  className={defenseReviewForm.issueTags.includes(tag) ? "selected" : ""}
+                  onClick={() => toggleDefenseReviewIssueTag(tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="field-label">
+            운영진 메모
+            <textarea
+              value={defenseReviewForm.memo}
+              placeholder="예: 오공 속공 확인 필요, 엘리시아 장신구 수정 권장"
+              onChange={(event) => updateDefenseReviewForm("memo", event.target.value)}
+            />
+          </label>
+
+          <div className="field-label">
+            <span>방덱 캡쳐 이미지</span>
+            <p className="muted small-text">방덱 점검 이미지는 최대 20장까지 가능. 업로드 시 자동으로 압축됨.</p>
+            <input type="file" accept="image/*" multiple onChange={handleDefenseReviewImageUpload} />
+          </div>
+
+          {(defenseReviewForm.images || []).length > 0 && (
+            <div className="image-preview-grid">
+              {(defenseReviewForm.images || []).map((image, index) => (
+                <div className="image-preview-item" key={image.id || `defense-review-preview-${index}`}>
+                  <img src={image.url || image.dataUrl || image} alt={`방덱 점검 미리보기 ${index + 1}`} />
+                  <div className="image-preview-meta">
+                    <span>{image.name || `이미지 ${index + 1}`}</span>
+                    <button
+                      type="button"
+                      className="delete-button tiny-button"
+                      onClick={() => removeDefenseReviewImage(image.id)}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="backup-button-row">
+            <button type="submit" className="primary-button">
+              {editingDefenseReviewId ? "방덱 점검 수정 저장" : "방덱 점검 등록"}
+            </button>
+            <button type="button" className="ghost-button" onClick={resetDefenseReviewEditor}>
+              취소
+            </button>
+          </div>
+        </form>
+      )}
+
+      <div className="defense-review-filter-stack">
+        <div className="board-group-tabs defense-review-tabs">
+          {["전체", ...defenseReviewDeckTypes].map((type) => (
+            <button
+              type="button"
+              key={`defense-filter-${type}`}
+              className={defenseReviewDeckFilter === type ? "selected" : ""}
+              onClick={() => setDefenseReviewDeckFilter(type)}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+
+        <div className="filter-bar">
+          <select value={defenseReviewStatusFilter} onChange={(event) => setDefenseReviewStatusFilter(event.target.value)}>
+            <option value="전체">전체 상태</option>
+            {defenseReviewStatusOptions.map((status) => (
+              <option key={`status-filter-${status}`} value={status}>{status}</option>
+            ))}
+          </select>
+
+          <input
+            value={defenseReviewSearch}
+            placeholder="닉네임, 영웅명, 펫, 메모 검색"
+            onChange={(event) => setDefenseReviewSearch(event.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="defense-review-grid">
+        {filteredDefenseReviews.length === 0 ? (
+          <div className="empty-box">등록된 방덱 점검 기록이 없음.</div>
+        ) : (
+          filteredDefenseReviews.map((review) => (
+            <button
+              type="button"
+              key={review.id}
+              className="defense-review-card"
+              onClick={() => setSelectedDefenseReview(review)}
+            >
+              <div className="defense-review-card-head">
+                <div>
+                  <p className="eyebrow">{review.deckType}</p>
+                  <h3>{review.memberName || "이름 없음"}</h3>
+                  <span>{review.deckName || "방덱 이름 없음"}</span>
+                </div>
+                <div className="defense-review-score">
+                  <strong>{review.score}</strong>
+                  <em>점</em>
+                </div>
+              </div>
+
+              <HeroRow heroes={review.heroes || []} size="xs" />
+              <PetChip name={review.petName} />
+
+              <div className="defense-accessory-summary-list">
+                {(review.heroes || []).map((hero) => (
+                  <div key={`summary-${review.id}-${hero}`}>
+                    <b>{shortHeroName(hero)}</b>
+                    <span>{defenseAccessorySummary(review.accessories?.[hero])}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="defense-review-card-tags">
+                <span>{review.status}</span>
+                {(review.images || []).length > 0 && <span>이미지 {(review.images || []).length}장</span>}
+              </div>
+
+              {review.memo && <p>{review.memo}</p>}
+            </button>
+          ))
+        )}
+      </div>
+    </section>
+  );
+
   const renderAdmin = () => (
     <section className="panel-section admin-panel">
       <div className="section-title-row">
@@ -3772,6 +4525,7 @@ function App() {
         {activeTab === "write" && renderWrite()}
         {activeTab === "mistCut" && <MistCutCalculator />}
         {activeTab === "heroes" && renderHeroes()}
+        {activeTab === "defenseReview" && isRealAdmin && renderDefenseReview()}
         {activeTab === "admin" && isRealAdmin && renderAdmin()}
       </main>
 
@@ -3782,6 +4536,16 @@ function App() {
           onClose={() => setSelectedNotice(null)}
           onEdit={startEditNotice}
           onDelete={deleteNotice}
+          onOpenImage={setViewerImage}
+        />
+      )}
+
+      {selectedDefenseReview && (
+        <DefenseReviewDetail
+          review={selectedDefenseReview}
+          onClose={() => setSelectedDefenseReview(null)}
+          onEdit={startEditDefenseReview}
+          onDelete={deleteDefenseReview}
           onOpenImage={setViewerImage}
         />
       )}
