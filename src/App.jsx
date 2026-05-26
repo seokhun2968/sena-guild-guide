@@ -70,7 +70,14 @@ const defenseReviewNavItem = { id: "defenseReview", label: "방덱 점검" };
 const defenseReviewDeckTypes = ["라오엘", "여포덱", "마덱", "트겔미", "기타"];
 const defenseReviewStatusOptions = ["검토 필요", "수정 권장", "괜찮음"];
 const defenseReviewIssueTagOptions = ["장신구 확인", "후열 확인", "속공 확인", "조합 이상", "사진 확인 필요"];
-const defenseReviewScoreOptions = [5, 4, 3, 2, 1];
+const defenseReviewScoreOptions = [
+  { value: 0, label: "보류" },
+  { value: 5, label: "5점" },
+  { value: 4, label: "4점" },
+  { value: 3, label: "3점" },
+  { value: 2, label: "2점" },
+  { value: 1, label: "1점" },
+];
 
 const speedBattleLabels = {
   win: "속공 승",
@@ -600,7 +607,7 @@ const initialDefenseReviewForm = {
   petName: "",
   accessories: {},
   images: [],
-  score: 3,
+  score: 0,
   status: "검토 필요",
   issueTags: [],
   memo: "",
@@ -945,6 +952,16 @@ function defenseAccessorySummary(accessory = {}) {
   return `${base}${reforge}`;
 }
 
+function normalizeDefenseScore(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 3;
+}
+
+function defenseScoreLabel(value) {
+  const score = normalizeDefenseScore(value);
+  return score === 0 ? "보류" : `${score}점`;
+}
+
 function normalizeDefenseReviewRow(row) {
   return {
     id: row.id,
@@ -955,7 +972,7 @@ function normalizeDefenseReviewRow(row) {
     petName: row.pet_name || "",
     accessories: row.accessories || {},
     images: Array.isArray(row.images) ? row.images : [],
-    score: Number(row.score || 3),
+    score: normalizeDefenseScore(row.score),
     status: row.status || "검토 필요",
     issueTags: Array.isArray(row.issue_tags) ? row.issue_tags : [],
     memo: row.memo || "",
@@ -985,7 +1002,7 @@ async function saveDefenseReviewToSupabase(review) {
     pet_name: review.petName || "",
     accessories: review.accessories || {},
     images: review.images || [],
-    score: Number(review.score || 3),
+    score: normalizeDefenseScore(review.score),
     status: review.status || "검토 필요",
     issue_tags: review.issueTags || [],
     memo: review.memo || "",
@@ -1854,8 +1871,7 @@ function DefenseReviewDetail({ review, onClose, onEdit, onDelete, onOpenImage })
             <p className="eyebrow">Defense Review</p>
             <h2>{review.memberName || "이름 없음"} · {review.deckType}</h2>
             <p className="muted">
-              {review.deckName || "방덱 이름 없음"} · {review.score}점 · {review.status}
-            </p>
+              {review.deckName || "방덱 이름 없음"} · {defenseScoreLabel(review.score)} · {review.status}            </p>
           </div>
 
           <div className="detail-actions">
@@ -3307,7 +3323,7 @@ function App() {
       petName: defenseReviewForm.petName || "",
       accessories: defenseReviewForm.accessories || {},
       images: defenseReviewForm.images || [],
-      score: Number(defenseReviewForm.score || 3),
+      score: normalizeDefenseScore(defenseReviewForm.score),
       status: defenseReviewForm.status || "검토 필요",
       issueTags: defenseReviewForm.issueTags || [],
       memo: defenseReviewForm.memo.trim(),
@@ -3345,7 +3361,7 @@ function App() {
       petName: review.petName || "",
       accessories: review.accessories || {},
       images: review.images || [],
-      score: Number(review.score || 3),
+      score: normalizeDefenseScore(review.score),
       status: review.status || "검토 필요",
       issueTags: review.issueTags || [],
       memo: review.memo || "",
@@ -4124,10 +4140,12 @@ function App() {
               강함 점수
               <select
                 value={defenseReviewForm.score}
-                onChange={(event) => updateDefenseReviewForm("score", Number(event.target.value))}
+                onChange={(event) => updateDefenseReviewForm("score", normalizeDefenseScore(event.target.value))}
               >
-                {defenseReviewScoreOptions.map((score) => (
-                  <option key={`defense-score-${score}`} value={score}>{score}점</option>
+                {defenseReviewScoreOptions.map((option) => (
+                  <option key={`defense-score-${option.value}`} value={option.value}>
+                    {option.label}
+                  </option>
                 ))}
               </select>
             </label>
@@ -4326,9 +4344,9 @@ function App() {
                   <h3>{review.memberName || "이름 없음"}</h3>
                   <span>{review.deckName || "방덱 이름 없음"}</span>
                 </div>
+
                 <div className="defense-review-score">
-                  <strong>{review.score}</strong>
-                  <em>점</em>
+                  <strong>{defenseScoreLabel(review.score)}</strong>
                 </div>
               </div>
 
