@@ -3200,7 +3200,7 @@ button.plain-skill-slot:hover {
   align-content: start;
 }
 
-.backline-picker-field > span {
+.backline-picker-field>span {
   color: #e9f1ff;
   font-weight: 900;
 }
@@ -3230,7 +3230,7 @@ button.plain-skill-slot:hover {
   color: #ffe083;
 }
 
-.backline-picker-button > span {
+.backline-picker-button>span {
   font-size: 11px;
 }
 
@@ -3499,7 +3499,7 @@ button.plain-skill-slot:hover {
   background: rgba(255, 216, 76, 0.14);
 }
 
-.heal-toggle-card > span {
+.heal-toggle-card>span {
   color: #fff;
   font-size: 12px;
   font-weight: 900;
@@ -4120,6 +4120,7 @@ textarea::placeholder {
    - 모바일 공략 목록 압축 표시
    ========================= */
 @media (max-width: 720px) {
+
   .post-grid,
   .compact-grid {
     grid-template-columns: 1fr;
@@ -4146,7 +4147,7 @@ textarea::placeholder {
     gap: 8px;
   }
 
-  .post-card-head > div {
+  .post-card-head>div {
     min-width: 0;
     flex: 1;
   }
@@ -4196,7 +4197,7 @@ textarea::placeholder {
     line-height: 1.2;
   }
 
-  .post-meta span + span::before {
+  .post-meta span+span::before {
     content: "·";
     margin-right: 6px;
     color: #6f7d93;
@@ -4294,7 +4295,7 @@ body {
     font-size: 12px;
   }
 
-  .post-meta span + span::before {
+  .post-meta span+span::before {
     content: "·";
     margin-right: 8px;
     color: #6f7d93;
@@ -4336,15 +4337,15 @@ body {
     align-items: start;
   }
 
-  .matchup-board-row > .deck-skill-card {
+  .matchup-board-row>.deck-skill-card {
     order: 1;
   }
 
-  .matchup-board-row > .formation-board-card {
+  .matchup-board-row>.formation-board-card {
     order: 2;
   }
 
-  .matchup-board-row > .central-strategy-card {
+  .matchup-board-row>.central-strategy-card {
     order: 3;
     grid-column: 1 / -1;
     min-height: auto;
@@ -4656,4 +4657,9 @@ body {
   .defense-accessory-view-item {
     grid-template-columns: 52px 1fr;
   }
+}
+
+.defense-review-writing .defense-review-filter-stack,
+.defense-review-writing .defense-review-grid {
+  display: none;
 }

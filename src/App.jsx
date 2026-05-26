@@ -67,9 +67,9 @@ const adminNavItem = { id: "admin", label: "관리자 설정" };
 
 const defenseReviewNavItem = { id: "defenseReview", label: "방덱 점검" };
 
-const defenseReviewDeckTypes = ["라오엘", "여포덱", "마덱", "기타"];
-const defenseReviewStatusOptions = ["검토 필요", "수정 권장", "괜찮음", "수정 완료"];
-const defenseReviewIssueTagOptions = ["장신구 확인", "후열 확인", "속공 확인", "효저 확인", "조합 이상", "사진 확인 필요"];
+const defenseReviewDeckTypes = ["라오엘", "여포덱", "마덱", "트겔미", "기타"];
+const defenseReviewStatusOptions = ["검토 필요", "수정 권장", "괜찮음"];
+const defenseReviewIssueTagOptions = ["장신구 확인", "후열 확인", "속공 확인", "조합 이상", "사진 확인 필요"];
 const defenseReviewScoreOptions = [5, 4, 3, 2, 1];
 
 const speedBattleLabels = {
@@ -1926,7 +1926,15 @@ function DefenseReviewDetail({ review, onClose, onEdit, onDelete, onOpenImage })
   );
 }
 
-function HeroSelector({ label, selected, max, onChange, favoriteHeroes = [], favoriteLabel = "자주 쓰는 영웅" }) {
+function HeroSelector({
+  label,
+  selected,
+  max,
+  onChange,
+  favoriteHeroes = [],
+  favoriteLabel = "자주 쓰는 영웅",
+  showFullListByDefault = true,
+}) {
   const [keyword, setKeyword] = useState("");
   const normalized = normalizeSearchText(keyword);
 
@@ -1995,12 +2003,14 @@ function HeroSelector({ label, selected, max, onChange, favoriteHeroes = [], fav
         </div>
       )}
 
-      <div className="favorite-picker-block">
-        <div className="picker-subtitle">{normalized ? "검색 결과" : "전체 영웅"}</div>
-        <div className="hero-select-grid">
-          {normalFiltered.map(renderHeroButton)}
+      {(normalized || showFullListByDefault) && (
+        <div className="favorite-picker-block">
+          <div className="picker-subtitle">{normalized ? "검색 결과" : "전체 영웅"}</div>
+          <div className="hero-select-grid">
+            {normalFiltered.map(renderHeroButton)}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -3679,6 +3689,7 @@ function App() {
                   onChange={(value) => updateForm("enemyDeck", value)}
                   favoriteHeroes={favoriteOrders.guildWarDefense || []}
                   favoriteLabel="자주 쓰는 방어덱 영웅"
+                  showFullListByDefault={false}
                 />
               </div>
 
@@ -4052,28 +4063,27 @@ function App() {
   );
 
   const renderDefenseReview = () => (
-    <section className="panel-section defense-review-panel">
-      <div className="section-title-row">
-        <div>
-          <p className="eyebrow">Admin Review</p>
-          <h2>방덱 점검</h2>
-          <p className="muted">길드원별 방어덱 캡쳐와 장신구를 정리해서 덱 유형별로 비교합니다.</p>
-        </div>
-
-        <button
-          type="button"
-          className="primary-button small-primary"
-          onClick={() => {
-            setShowDefenseReviewForm((prev) => !prev);
-            if (!showDefenseReviewForm) {
-              setDefenseReviewForm(initialDefenseReviewForm);
-              setEditingDefenseReviewId(null);
-            }
-          }}
-        >
-          {showDefenseReviewForm ? "작성 닫기" : "방덱 등록"}
-        </button>
+    <section className={`panel-section defense-review-panel ${showDefenseReviewForm ? "defense-review-writing" : ""}`}>      <div className="section-title-row">
+      <div>
+        <p className="eyebrow">Admin Review</p>
+        <h2>방덱 점검</h2>
+        <p className="muted">길드원별 방어덱 캡쳐와 장신구를 정리해서 덱 유형별로 비교합니다.</p>
       </div>
+
+      <button
+        type="button"
+        className="primary-button small-primary"
+        onClick={() => {
+          setShowDefenseReviewForm((prev) => !prev);
+          if (!showDefenseReviewForm) {
+            setDefenseReviewForm(initialDefenseReviewForm);
+            setEditingDefenseReviewId(null);
+          }
+        }}
+      >
+        {showDefenseReviewForm ? "작성 닫기" : "방덱 등록"}
+      </button>
+    </div>
 
       {showDefenseReviewForm && (
         <form className="form-card write-form defense-review-form" onSubmit={handleDefenseReviewSubmit}>
@@ -4084,7 +4094,7 @@ function App() {
               길드원 닉네임
               <input
                 value={defenseReviewForm.memberName}
-                placeholder="예: 나은꽁"
+                placeholder="예: 찐빵마시써"
                 onChange={(event) => updateDefenseReviewForm("memberName", event.target.value)}
               />
             </label>
@@ -4105,7 +4115,7 @@ function App() {
               방덱 이름
               <input
                 value={defenseReviewForm.deckName}
-                placeholder="예: 나은꽁 라오엘"
+                placeholder="예: 찐빵마시써 라오엘"
                 onChange={(event) => updateDefenseReviewForm("deckName", event.target.value)}
               />
             </label>
@@ -4142,6 +4152,7 @@ function App() {
             onChange={(value) => updateDefenseReviewForm("heroes", value)}
             favoriteHeroes={favoriteOrders.guildWarDefense || []}
             favoriteLabel="자주 쓰는 방어덱 영웅"
+            showFullListByDefault={false}
           />
 
           <PetSelect
@@ -4292,7 +4303,7 @@ function App() {
 
           <input
             value={defenseReviewSearch}
-            placeholder="닉네임, 영웅명, 펫, 메모 검색"
+            placeholder="길드원 닉네임, 영웅명, 펫, 메모 검색"
             onChange={(event) => setDefenseReviewSearch(event.target.value)}
           />
         </div>
