@@ -2992,6 +2992,7 @@ function App() {
       settings,
       posts,
       notices,
+      defenseReviews,
     };
 
     downloadJsonFile(`sena-guide-full-backup-${todayText()}.json`, backup);
